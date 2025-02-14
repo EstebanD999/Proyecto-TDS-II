@@ -41,7 +41,7 @@
     <!-- Formulario de Inicio de Sesión -->
     <div id="loginForm" class="form-container">
         <h3 class="text-center">Iniciar Sesión</h3>
-        <form>
+        <form action = "../Backend/conexion.php" method="POST">
             <div class="mb-2">
                 <label for="emailLogin" class="form-label">Correo Electrónico</label>
                 <input type="email" class="form-control" id="emailLogin" placeholder="Tu email">
@@ -61,7 +61,7 @@
     <!-- Formulario de Registro -->
     <div id="registerForm" class="form-container" style="display: none;">
         <h3 class="text-center">Registrate</h3>
-        <form>
+        <form action = "../Backend/conexion.php" method="POST">
             <div class="mb-2">
                 <label for="nameRegister" class="form-label">Nombre Completo</label>
                 <input type="text" class="form-control" id="nameRegister" placeholder="Tu nombre">
