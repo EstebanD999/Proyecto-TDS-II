@@ -6,7 +6,7 @@ $dbname = 'paginaweb';
 
 $username = 'root';
 
-$password = 'admin1234';
+$password = '';
 
 try {
     $pdo = new PDO ("mysql:host=$host;dbname=$dbname",$username,$password);

@@ -41,14 +41,14 @@
     <!-- Formulario de Inicio de Sesión -->
     <div id="loginForm" class="form-container">
         <h3 class="text-center">Iniciar Sesión</h3>
-        <form action = "../Backend/conexion.php" method="POST">
+        <form action = "../Backend/login.php" method="POST">
             <div class="mb-2">
                 <label for="emailLogin" class="form-label">Correo Electrónico</label>
-                <input type="email" class="form-control" id="emailLogin" placeholder="Tu email">
+                <input type="email" class="form-control" id="emailLogin" name="emailLogin" placeholder="Tu email">
             </div>
             <div class="mb-2">
                 <label for="passwordLogin" class="form-label">Contraseña</label>
-                <input type="password" class="form-control" id="passwordLogin" placeholder="Tu contraseña">
+                <input type="password" class="form-control" id="passwordLogin" name="passwordLogin" placeholder="Tu contraseña">
             </div>
             <button type="submit" class="btn btn-custom w-100 mt-2">Ingresar</button>
         </form>
@@ -61,18 +61,18 @@
     <!-- Formulario de Registro -->
     <div id="registerForm" class="form-container" style="display: none;">
         <h3 class="text-center">Registrate</h3>
-        <form action = "../Backend/conexion.php" method="POST">
+        <form action = "../Backend/register.php" method="POST">
             <div class="mb-2">
                 <label for="nameRegister" class="form-label">Nombre Completo</label>
-                <input type="text" class="form-control" id="nameRegister" placeholder="Tu nombre">
+                <input type="text" class="form-control" id="nameRegister" name="nameRegister" placeholder="Tu nombre">
             </div>
             <div class="mb-2">
                 <label for="emailRegister" class="form-label">Correo Electrónico</label>
-                <input type="email" class="form-control" id="emailRegister" placeholder="Tu email">
+                <input type="email" class="form-control" id="emailRegister" name="emailRegister" placeholder="Tu email">
             </div>
             <div class="mb-2">
                 <label for="passwordRegister" class="form-label">Contraseña</label>
-                <input type="password" class="form-control" id="passwordRegister" placeholder="Crea una contraseña">
+                <input type="password" class="form-control" id="passwordRegister" name="passwordLogin" placeholder="Crea una contraseña">
             </div>
             <button type="submit" class="btn btn-custom w-100 mt-2">Registrarse</button>
         </form>
