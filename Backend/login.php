@@ -13,12 +13,12 @@ if($_SERVER['REQUEST_METHOD']== 'POST'){
 
     $stmt = $pdo -> prepare("SELECT * FROM usuarios WHERE email = :email");
     $stmt -> bindParam(':email' , $email);
-    $stmt -> exec ();
+    $stmt -> execute ();
 
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($user && password_verify($password, $user['password'])) {
-        header("Location: ../Frotend/inicio.html"); 
+        header("Location: ../frontend/inicio.html"); 
         exit;
     } else {
         echo "Contraseña incorrecta.";

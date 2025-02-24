@@ -3,65 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Disponibilidad de Productos</title>
+  <title>Bienvenido al Sistema de Reserva de Salas</title>
   <!-- Agregar Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    .product-card {
-      width: 100%;
-      max-width: 350px;
-      margin: 20px auto;
+    body {
+      font-family: Arial, sans-serif;
+    }
+    .hero-section {
+      background-color: #007bff;
+      color: white;
+      padding: 60px 0;
+      text-align: center;
+    }
+    .hero-section h1 {
+      font-size: 3rem;
+    }
+    .hero-section p {
+      font-size: 1.2rem;
+    }
+    .feature-section {
+      background-color: #f9f9f9;
+      padding: 40px 0;
+    }
+    .feature-section h2 {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .feature-card {
+      text-align: center;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       border-radius: 10px;
-    }
-    .card-img-top {
-      border-top-left-radius: 10px;
-      border-top-right-radius: 10px;
-      height: 250px;
-      object-fit: cover;
-    }
-    .btn-group {
+      margin-bottom: 30px;
       display: flex;
+      flex-direction: column;
       justify-content: space-between;
+      height: 100%;
+    }
+    .feature-card p {
+      font-size: 1rem;
+      color: #555;
     }
     .footer {
       background-color: #343a40;
       color: #fff;
       padding: 20px 0;
-      position: relative;
-      bottom: 0;
-      width: 100%;
-    }
-    #cartMessage {
-      display: none;
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 9999;
-      width: 80%;
       text-align: center;
-    }
-    .cart-container {
-      margin-top: 40px;
-      padding: 20px;
-      background-color: #f8f9fa;
-      border-radius: 10px;
-    }
-    .cart-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
-    }
-    .row {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .col-md-4 {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 20px;
     }
   </style>
 </head>
@@ -70,248 +58,67 @@
   <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-      <a class="navbar-brand" href="inicio.html">BVI</a>
+      <a class="navbar-brand" href="#">Universidad BVI</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="inicio.html">Inicio</a></li>
-          <li class="nav-item"><a class="nav-link active" href="contacto.html">Contacto</a></li>
+          <li class="nav-item">
+            <a class="nav-link" href="inicio.html">Inicio</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="reservas.html">Reservas</a>
+          </li>
         </ul>
       </div>
     </div>
   </nav>
 
-  <!-- Contenedor de productos -->
-  <div class="container my-4">
-    <div class="row">
-      <!-- Tarjeta Producto 1 -->
-      <div class="col-md-4">
-        <div class="card product-card">
-          <img src="https://via.placeholder.com/150" class="card-img-top" alt="Producto">
-          <div class="card-body">
-            <h5 class="card-title">Smartphone X1000</h5>
-            <p class="card-text">Precio: <strong>$499.99</strong></p>
-            <p class="card-text">Disponibilidad: <span class="badge bg-success">En stock</span></p>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productAvailabilityModal1">
-              Ver disponibilidad
-            </button>
-            <button type="button" class="btn btn-secondary mt-2" onclick="addToCart('Smartphone X1000', 499.99)">Añadir al carrito</button>
+  <!-- Sección Hero -->
+  <section class="hero-section">
+    <h1>Bienvenidos al Sistema de Reserva de Salas</h1>
+    <p>Profesores, aquí pueden gestionar las reservas de las salas para sus clases y reuniones de manera fácil y rápida.</p>
+    <a href="reservas.html" class="btn btn-light">Acceder al Sistema de Reservas</a>
+  </section>
+
+  <!-- Sección de Características del Sistema -->
+  <section class="feature-section">
+    <div class="container">
+      <h2>Características del Sistema</h2>
+      <div class="row d-flex align-items-stretch">
+        <!-- Característica 1 -->
+        <div class="col-md-4 mb-4">
+          <div class="feature-card">
+            <h4>Reservas Rápidas</h4>
+            <p>Reserva las salas de manera rápida y sin complicaciones. Solo selecciona la fecha y hora deseada.</p>
           </div>
         </div>
-      </div>
-
-      <div class="col-md-4">
-        <div class="card product-card">
-          <img src="https://via.placeholder.com/150" class="card-img-top" alt="Producto">
-          <div class="card-body">
-            <h5 class="card-title">Smartphone X1000</h5>
-            <p class="card-text">Precio: <strong>$499.99</strong></p>
-            <p class="card-text">Disponibilidad: <span class="badge bg-success">En stock</span></p>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productAvailabilityModal1">
-              Ver disponibilidad
-            </button>
-            <button type="button" class="btn btn-secondary mt-2" onclick="addToCart('Smartphone X1000', 499.99)">Añadir al carrito</button>
+        <!-- Característica 2 -->
+        <div class="col-md-4 mb-4">
+          <div class="feature-card">
+            <h4>Disponibilidad en Tiempo Real</h4>
+            <p>Consulta la disponibilidad de las salas en tiempo real y evita conflictos con otras reservas.</p>
           </div>
         </div>
-      </div>
-
-      <div class="col-md-4">
-        <div class="card product-card">
-          <img src="https://via.placeholder.com/150" class="card-img-top" alt="Producto">
-          <div class="card-body">
-            <h5 class="card-title">Smartphone X1000</h5>
-            <p class="card-text">Precio: <strong>$499.99</strong></p>
-            <p class="card-text">Disponibilidad: <span class="badge bg-success">En stock</span></p>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productAvailabilityModal1">
-              Ver disponibilidad
-            </button>
-            <button type="button" class="btn btn-secondary mt-2" onclick="addToCart('Smartphone X1000', 499.99)">Añadir al carrito</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-4">
-        <div class="card product-card">
-          <img src="https://via.placeholder.com/150" class="card-img-top" alt="Producto">
-          <div class="card-body">
-            <h5 class="card-title">Smartphone X1000</h5>
-            <p class="card-text">Precio: <strong>$499.99</strong></p>
-            <p class="card-text">Disponibilidad: <span class="badge bg-success">En stock</span></p>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productAvailabilityModal1">
-              Ver disponibilidad
-            </button>
-            <button type="button" class="btn btn-secondary mt-2" onclick="addToCart('Smartphone X1000', 499.99)">Añadir al carrito</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tarjeta Producto 2 -->
-      <div class="col-md-4">
-        <div class="card product-card">
-          <img src="https://via.placeholder.com/150" class="card-img-top" alt="Producto">
-          <div class="card-body">
-            <h5 class="card-title">Laptop UltraMax</h5>
-            <p class="card-text">Precio: <strong>$799.99</strong></p>
-            <p class="card-text">Disponibilidad: <span class="badge bg-warning">Bajo stock</span></p>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productAvailabilityModal2">
-              Ver disponibilidad
-            </button>
-            <button type="button" class="btn btn-secondary mt-2" onclick="addToCart('Laptop UltraMax', 799.99)">Añadir al carrito</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tarjeta Producto 3 -->
-      <div class="col-md-4">
-        <div class="card product-card">
-          <img src="https://via.placeholder.com/150" class="card-img-top" alt="Producto">
-          <div class="card-body">
-            <h5 class="card-title">Tablet Pro 8</h5>
-            <p class="card-text">Precio: <strong>$299.99</strong></p>
-            <p class="card-text">Disponibilidad: <span class="badge bg-danger">Agotado</span></p>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#productAvailabilityModal3">
-              Ver disponibilidad
-            </button>
-            <button type="button" class="btn btn-secondary mt-2" disabled>Añadir al carrito</button>
+        <!-- Característica 3 -->
+        <div class="col-md-4 mb-4">
+          <div class="feature-card">
+            <h4>Gestión de Equipos</h4>
+            <p>Gestiona los equipos y recursos disponibles para cada sala, como proyectores, micrófonos y más.</p>
           </div>
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- Ventanas Modales -->
-  <div class="modal fade" id="productAvailabilityModal1" tabindex="-1" aria-labelledby="productModalLabel1" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="productModalLabel1">Disponibilidad de Smartphone X1000</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
-        <div class="modal-body">
-          <p>Producto: <strong>Smartphone X1000</strong></p>
-          <p>Disponibilidad: <strong>En stock</strong></p>
-          <p>Cantidad disponible: <strong>25 unidades</strong></p>
-          <p>Precio: <strong>$499.99</strong></p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-          <button type="button" class="btn btn-primary">Añadir al carrito</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal fade" id="productAvailabilityModal2" tabindex="-1" aria-labelledby="productModalLabel2" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="productModalLabel2">Disponibilidad de Laptop UltraMax</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
-        <div class="modal-body">
-          <p>Producto: <strong>Laptop UltraMax</strong></p>
-          <p>Disponibilidad: <strong>Bajo stock</strong></p>
-          <p>Cantidad disponible: <strong>10 unidades</strong></p>
-          <p>Precio: <strong>$799.99</strong></p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-          <button type="button" class="btn btn-primary">Añadir al carrito</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal fade" id="productAvailabilityModal3" tabindex="-1" aria-labelledby="productModalLabel3" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="productModalLabel3">Disponibilidad de Tablet Pro 8</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-        </div>
-        <div class="modal-body">
-          <p>Producto: <strong>Tablet Pro 8</strong></p>
-          <p>Disponibilidad: <strong>Agotado</strong></p>
-          <p>Cantidad disponible: <strong>0 unidades</strong></p>
-          <p>Precio: <strong>$299.99</strong></p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-          <button type="button" class="btn btn-primary" disabled>Añadir al carrito</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Carrito -->
-  <div class="container cart-container">
-    <h3>Productos en el Carrito</h3>
-    <div id="cartItemsList">
-      <p>No hay productos en tu carrito.</p>
-    </div>
-    <div id="cartTotal">
-      <h4>Total: $<span id="totalAmount">0.00</span></h4>
-    </div>
-  </div>
-
-  <!-- Mensaje de carrito -->
-  <div id="cartMessage" class="alert alert-success">
-    <strong>¡Producto añadido al carrito!</strong>
-  </div>
+  </section>
 
   <!-- Footer -->
-  <footer class="footer text-center">
-    <p>&copy; 2025 | <a href="#" class="text-white">Política de privacidad</a></p>
+  <footer class="footer">
+    <p>&copy; 2025 Universidad BVI | <a href="#" class="text-white">Política de Privacidad</a></p>
   </footer>
 
   <!-- Agregar Bootstrap JS y dependencias -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Script para manejar el carrito -->
-  <script>
-    let cart = [];
-
-    // Función para agregar productos al carrito
-    function addToCart(productName, productPrice) {
-      // Añadir el producto al array del carrito
-      cart.push({ name: productName, price: productPrice });
-
-      // Mostrar el mensaje en la parte superior
-      var cartMessage = document.getElementById('cartMessage');
-      cartMessage.style.display = 'block';
-      setTimeout(function() {
-        cartMessage.style.display = 'none';
-      }, 3000);
-
-      // Actualizar la lista de productos en el carrito
-      updateCart();
-    }
-
-    // Función para actualizar la visualización del carrito
-    function updateCart() {
-      let cartItemsList = document.getElementById('cartItemsList');
-      let totalAmount = 0;
-      cartItemsList.innerHTML = ''; // Limpiar la lista de productos del carrito
-
-      if (cart.length === 0) {
-        cartItemsList.innerHTML = '<p>No hay productos en tu carrito.</p>';
-      }
-
-      // Recorrer los productos del carrito y mostrarlos
-      cart.forEach(function(item) {
-        let cartItem = document.createElement('div');
-        cartItem.className = 'cart-item';
-        cartItem.innerHTML = `<span>${item.name}</span><span>$${item.price.toFixed(2)}</span>`;
-        cartItemsList.appendChild(cartItem);
-        totalAmount += item.price;
-      });
-
-      // Actualizar el total del carrito
-      document.getElementById('totalAmount').innerText = totalAmount.toFixed(2);
-    }
-  </script>
 
 </body>
 </html>
