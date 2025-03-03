@@ -23,6 +23,17 @@
     .footer {
       margin-top: auto;
     }
+    /* Estilo actualizado para la alerta */
+    #usuarioReserva {
+      font-weight: bold;
+      color: #fff;
+    }
+    #ipServidor {
+      background-color: #0d6efd;  /* Color de fondo igual al de btn-primary */
+      color: #fff;  /* Color de texto blanco */
+      font-size: 16px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -35,12 +46,21 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item"><a class="nav-link" href="inicio.html">Inicio</a></li>
-          <li class="nav-item"><a class="nav-link active" href="reservas.html">Reservar Sala</a></li>
+          <li class="nav-item"><a class="nav-link active" href="reservas.html">Reservar</a></li>
+          <li class="nav-item"><a class="nav-link active" href="salas_Reservadas.html">Salas Reservadas</a></li>
         </ul>
       </div>
     </div>
   </nav>
-  
+
+  <!-- Espacio donde se mostrará el nombre del usuario que reservó -->
+  <div class="container mt-3">
+    <title>Universidad BVI</title>
+    <div id="ipServidor" class="alert text-center">
+      <strong>Reserva realizada por: <span id="usuarioReserva">Nadie ha reservado aún.</span></strong>
+    </div>
+  </div>
+
   <div class="container salas-section">
     <h2 class="text-center">Disponibilidad de Salas</h2>
     <div class="table-container mt-4">
@@ -51,64 +71,73 @@
             <th>Cantidad Disponible</th>
             <th>Estado</th>
             <th>Equipamiento</th>
-            <th>Acción</th>
+            <th>Persona que reservó</th>
+            <th>Acción</th>
           </tr>
         </thead>
         <tbody>
-          <tr>
+          <tr id="fila-AulaMagna">
             <td>Aula Magna</td>
-            <td id="Aula Magna">3</td>
-            <td class="text-success">Disponible</td>
-            <td id="equipamiento-Aula Magna">Proyector, Sonido</td>
-            <td><button class="btn btn-primary" onclick="reservarSala('Aula Magna')">Reservar</button></td>
+            <td id="AulaMagna">3</td>
+            <td class="text-success" id="estado-AulaMagna">Disponible</td>
+            <td id="equipamiento-AulaMagna">Proyector, Sonido</td>
+            <td id="persona-AulaMagna">-</td>
+            <td><button class="btn btn-primary" onclick="reservarSala('AulaMagna')">Reservar</button></td>
           </tr>
-          <tr>
+          <tr id="fila-AuditorioCentral">
             <td>Auditorio Central</td>
-            <td id="Auditorio Central">1</td>
-            <td class="text-warning">Última disponible</td>
-            <td id="equipamiento-Auditorio Central">Micrófonos, Pantalla LED</td>
-            <td><button class="btn btn-primary" onclick="reservarSala('Auditorio Central')">Reservar</button></td>
+            <td id="AuditorioCentral">1</td>
+            <td class="text-warning" id="estado-AuditorioCentral">Última disponible</td>
+            <td id="equipamiento-AuditorioCentral">Micrófonos, Pantalla LED</td>
+            <td id="persona-AuditorioCentral">-</td>
+            <td><button class="btn btn-primary" onclick="reservarSala('AuditorioCentral')">Reservar</button></td>
           </tr>
-          <tr>
+          <tr id="fila-SalaDeConferencias">
             <td>Sala de Conferencias</td>
-            <td id="Sala de Conferencias">0</td>
-            <td class="text-danger">Agotado</td>
-            <td id="equipamiento-Sala de Conferencias">Videoconferencia, Pizarra</td>
+            <td id="SalaDeConferencias">0</td>
+            <td class="text-danger" id="estado-SalaDeConferencias">Ocupada</td>
+            <td id="equipamiento-SalaDeConferencias">Videoconferencia, Pizarra</td>
+            <td id="persona-SalaDeConferencias">-</td>
             <td><button class="btn btn-secondary" disabled>Reservar</button></td>
           </tr>
-          <tr>
+          <tr id="fila-SalaDeReuniones">
             <td>Sala de Reuniones</td>
-            <td id="Sala de Reuniones">2</td>
-            <td class="text-success">Disponible</td>
-            <td id="equipamiento-Sala de Reuniones">TV, Wifi</td>
-            <td><button class="btn btn-primary" onclick="reservarSala('Sala de Reuniones')">Reservar</button></td>
+            <td id="SalaDeReuniones">2</td>
+            <td class="text-success" id="estado-SalaDeReuniones">Disponible</td>
+            <td id="equipamiento-SalaDeReuniones">TV, Wifi</td>
+            <td id="persona-SalaDeReuniones">-</td>
+            <td><button class="btn btn-primary" onclick="reservarSala('SalaDeReuniones')">Reservar</button></td>
           </tr>
-          <tr>
-            <td>Laboratorio de Cómputo</td>
-            <td id="Laboratorio de Cómputo">4</td>
-            <td class="text-success">Disponible</td>
-            <td id="equipamiento-Laboratorio de Cómputo">Computadoras, Software especializado</td>
-            <td><button class="btn btn-primary" onclick="reservarSala('Laboratorio de Cómputo')">Reservar</button></td>
+          <tr id="fila-LaboratorioDeComputo">
+            <td>Laboratorio de Cómputo</td>
+            <td id="LaboratorioDeComputo">4</td>
+            <td class="text-success" id="estado-LaboratorioDeComputo">Disponible</td>
+            <td id="equipamiento-LaboratorioDeComputo">Computadoras, Software especializado</td>
+            <td id="persona-LaboratorioDeComputo">-</td>
+            <td><button class="btn btn-primary" onclick="reservarSala('LaboratorioDeComputo')">Reservar</button></td>
           </tr>
-          <tr>
+          <tr id="fila-SalaDeEstudio">
             <td>Sala de Estudio</td>
-            <td id="Sala de Estudio">5</td>
-            <td class="text-success">Disponible</td>
-            <td id="equipamiento-Sala de Estudio">Mesas de trabajo, Iluminación</td>
-            <td><button class="btn btn-primary" onclick="reservarSala('Sala de Estudio')">Reservar</button></td>
+            <td id="SalaDeEstudio">5</td>
+            <td class="text-success" id="estado-SalaDeEstudio">Disponible</td>
+            <td id="equipamiento-SalaDeEstudio">Mesas de trabajo, Iluminación</td>
+            <td id="persona-SalaDeEstudio">-</td>
+            <td><button class="btn btn-primary" onclick="reservarSala('SalaDeEstudio')">Reservar</button></td>
           </tr>
-          <tr>
+          <tr id="fila-SalaDeTalleres">
             <td>Sala de Talleres</td>
-            <td id="Sala de Talleres">3</td>
-            <td class="text-success">Disponible</td>
-            <td id="equipamiento-Sala de Talleres">Herramientas, Materiales</td>
-            <td><button class="btn btn-primary" onclick="reservarSala('Sala de Talleres')">Reservar</button></td>
+            <td id="SalaDeTalleres">3</td>
+            <td class="text-success" id="estado-SalaDeTalleres">Disponible</td>
+            <td id="equipamiento-SalaDeTalleres">Herramientas, Materiales</td>
+            <td id="persona-SalaDeTalleres">-</td>
+            <td><button class="btn btn-primary" onclick="reservarSala('SalaDeTalleres')">Reservar</button></td>
           </tr>
-          <tr>
+          <tr id="fila-Biblioteca">
             <td>Biblioteca</td>
             <td id="Biblioteca">2</td>
-            <td class="text-success">Disponible</td>
+            <td class="text-success" id="estado-Biblioteca">Disponible</td>
             <td id="equipamiento-Biblioteca">Libros, Computadoras</td>
+            <td id="persona-Biblioteca">-</td>
             <td><button class="btn btn-primary" onclick="reservarSala('Biblioteca')">Reservar</button></td>
           </tr>
         </tbody>
@@ -127,6 +156,10 @@
         <div class="modal-body">
           <form id="reservaForm">
             <div class="mb-3">
+              <label for="nombre" class="form-label">Nombre</label>
+              <input type="text" class="form-control" id="nombre" required>
+            </div>
+            <div class="mb-3">
               <label for="fecha" class="form-label">Fecha de la Reserva</label>
               <input type="date" class="form-control" id="fecha" required>
             </div>
@@ -135,83 +168,205 @@
               <input type="time" class="form-control" id="hora" required>
             </div>
             <div class="mb-3">
+              <label for="horaFin" class="form-label">Hora de Finalización</label>
+              <input type="time" class="form-control" id="horaFin" required>
+            </div>
+            <div class="mb-3">
               <label for="equipamientoExtra" class="form-label">Equipamiento Extra</label>
-              <select id="equipamientoExtra" class="form-control" multiple>
-                <option value="Micrófono">Micrófono</option>
-                <option value="Laptop">Laptop</option>
-                <option value="Pantalla adicional">Pantalla adicional</option>
-                <option value="Proyector">Proyector</option>
-                <option value="Cables adicionales">Cables adicionales</option>
-                <option value="Muebles extra">Muebles extra</option>
-              </select>
-              <small class="form-text text-muted">Puedes seleccionar varios equipos manteniendo presionada la tecla Ctrl (Cmd en Mac) mientras seleccionas.</small>
+              <div id="equipamientoLista">
+                <div>
+                  <label for="micrófono">Micrófono</label>
+                  <span id="cantidad-Micrófono">3</span> disponibles
+                  <input type="checkbox" id="equipamiento-Micrófono" value="Micrófono">
+                </div>
+                <div>
+                  <label for="laptop">Laptop</label>
+                  <span id="cantidad-Laptop">5</span> disponibles
+                  <input type="checkbox" id="equipamiento-Laptop" value="Laptop">
+                </div>
+                <div>
+                  <label for="pantalla-adicional">Pantalla adicional</label>
+                  <span id="cantidad-Pantalla">2</span> disponibles
+                  <input type="checkbox" id="equipamiento-Pantalla" value="Pantalla adicional">
+                </div>
+                <div>
+                  <label for="proyector">Proyector</label>
+                  <span id="cantidad-Proyector">4</span> disponibles
+                  <input type="checkbox" id="equipamiento-Proyector" value="Proyector">
+                </div>
+                <div>
+                  <label for="cables-adicionales">Cables adicionales</label>
+                  <span id="cantidad-Cables">10</span> disponibles
+                  <input type="checkbox" id="equipamiento-Cables" value="Cables adicionales">
+                </div>
+                <div>
+                  <label for="muebles-extra">Muebles extra</label>
+                  <span id="cantidad-Muebles">6</span> disponibles
+                  <input type="checkbox" id="equipamiento-Muebles" value="Muebles extra">
+                </div>
+              </div>
             </div>
           </form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-          <button type="button" class="btn btn-primary" onclick="guardarReserva()">Confirmar Reserva</button>
+          <button type="button" class="btn btn-primary" onclick="guardarReserva()">Reservar</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Footer -->
-  <footer class="footer text-center bg-dark text-white py-3">
-    <p>&copy; 2025 Universidad BVI | <a href="#" class="text-white">Política de privacidad</a></p>
-  </footer>
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-  
   <script>
-    let salaSeleccionada = '';
+  let equipamientosDisponibles = {
+    "Micrófono": 3,
+    "Laptop": 5,
+    "Pantalla adicional": 2,
+    "Proyector": 4,
+    "Cables adicionales": 10,
+    "Muebles extra": 6
+  };
 
-    function reservarSala(nombre) {
-      salaSeleccionada = nombre;
-      let cantidadElemento = document.getElementById(nombre);
-      let cantidad = parseInt(cantidadElemento.textContent);
-      
-      if (cantidad > 0) {
-        // Abrir el modal para recoger los datos de fecha, hora y equipamiento extra
-        var modal = new bootstrap.Modal(document.getElementById('reservaModal'));
-        modal.show();
+  let salaSeleccionada = null;
+
+  // Función para actualizar la cantidad de equipamiento disponible
+  function actualizarCantidadEquipamiento() {
+    Object.keys(equipamientosDisponibles).forEach(equip => {
+      document.getElementById('cantidad-' + equip).textContent = equipamientosDisponibles[equip];
+    });
+  }
+
+  // Inicializa las cantidades de equipamiento al cargar la página
+  actualizarCantidadEquipamiento();
+
+  // Función para reservar una sala
+  function reservarSala(sala) {
+    salaSeleccionada = sala;
+    // Mostrar el modal de reserva
+    var modal = new bootstrap.Modal(document.getElementById('reservaModal'));
+    modal.show();
+  }
+
+  // Función para guardar la reserva en localStorage
+  function guardarReserva() {
+    // Obtener los datos del formulario
+    let nombre = document.getElementById('nombre').value;
+    let fecha = document.getElementById('fecha').value;
+    let hora = document.getElementById('hora').value;
+    let horaFin = document.getElementById('horaFin').value;
+
+    if (!nombre || !fecha || !hora || !horaFin) {
+      alert('Por favor, complete todos los campos obligatorios.');
+      return;
+    }
+
+    // Obtener los equipos extra seleccionados
+    let equipamientoExtra = [];
+    let equipamientosSeleccionados = document.querySelectorAll('#equipamientoLista input:checked');
+    equipamientosSeleccionados.forEach(equip => {
+      let equipName = equip.value;
+      if (equipamientosDisponibles[equipName] > 0) {
+        equipamientoExtra.push(equipName);
+        equipamientosDisponibles[equipName]--;  // Reducir la cantidad disponible
       } else {
-        alert('No hay más disponibilidad para la sala: ' + nombre);
+        alert(`El equipamiento "${equipName}" no está disponible.`);
       }
+    });
+
+    // Guardar el nombre de la persona que hace la reserva
+    document.getElementById('usuarioReserva').textContent = nombre;
+
+    // Actualizar la columna "Persona que reservó" en la tabla
+    document.getElementById('persona-' + salaSeleccionada).textContent = nombre;
+
+    // Disminuir la cantidad de la sala reservada
+    let cantidadElemento = document.getElementById(salaSeleccionada);
+    let cantidad = parseInt(cantidadElemento.textContent);
+
+    if (cantidad > 0) {
+      cantidad--; // Disminuir la cantidad de salas disponibles
+      cantidadElemento.textContent = cantidad;
+
+      // Cambiar el estado de la sala a 'Ocupada' si ya no hay disponibilidad
+      if (cantidad === 0) {
+        let estadoElemento = document.getElementById('estado-' + salaSeleccionada);
+        estadoElemento.textContent = 'Ocupada';
+        estadoElemento.className = 'text-danger'; // Cambiar el color a rojo
+
+        // Deshabilitar el botón de reserva si ya no hay más disponibilidad
+        let botonReserva = document.querySelector(`#fila-${salaSeleccionada} td button`);
+        botonReserva.disabled = true;
+        botonReserva.className = 'btn btn-secondary'; // Cambiar estilo del botón
+      }
+
+      // Guardar la reserva en localStorage
+      let reservas = JSON.parse(localStorage.getItem("reservasRealizadas")) || [];
+      reservas.push({
+        sala: salaSeleccionada,
+        persona: nombre,
+        fecha: fecha,
+        hora: hora,
+        horaFin: horaFin,
+        equipamientoExtra: equipamientoExtra.join(', ') || 'Ninguno'
+      });
+      localStorage.setItem("reservasRealizadas", JSON.stringify(reservas));
+
+      // Cerrar el modal
+      var modal = bootstrap.Modal.getInstance(document.getElementById('reservaModal'));
+      modal.hide();
+
+      // Limpiar el formulario
+      document.getElementById('reservaForm').reset();
+
+      // Actualizar las cantidades de los equipamientos disponibles
+      actualizarCantidadEquipamiento();
+    } else {
+      alert('Lo siento, no hay más disponibilidad para esta sala.');
+    }
+  }
+
+ // Función para cargar las reservas desde localStorage al cargar la página
+function cargarReservas() {
+  let reservas = JSON.parse(localStorage.getItem("reservasRealizadas")) || [];
+
+  reservas.forEach(reserva => {
+    // Actualizar la cantidad de la sala reservada
+    let cantidadElemento = document.getElementById(reserva.sala);
+    let cantidad = parseInt(cantidadElemento.textContent);
+    cantidad--; // Disminuir la cantidad disponible
+    cantidadElemento.textContent = cantidad;
+
+    // Mostrar el nombre de la persona que reservó
+    document.getElementById('usuarioReserva').textContent = reserva.persona;
+
+    // Actualizar la columna "Persona que reservó" en la tabla
+    document.getElementById('persona-' + reserva.sala).textContent = reserva.persona;
+
+    // Cambiar el estado de la sala a 'Ocupada' si ya no hay disponibilidad
+    if (cantidad === 0) {
+      let estadoElemento = document.getElementById('estado-' + reserva.sala);
+      estadoElemento.textContent = 'Ocupada';
+      estadoElemento.className = 'text-danger'; // Cambiar el color a rojo
+
+      // Deshabilitar el botón de reserva si ya no hay más disponibilidad
+      let botonReserva = document.querySelector(`#fila-${reserva.sala} td button`);
+      botonReserva.disabled = true;
+      botonReserva.className = 'btn btn-secondary'; // Cambiar estilo del botón
     }
 
-    function guardarReserva() {
-      // Obtener los datos del formulario
-      let fecha = document.getElementById('fecha').value;
-      let hora = document.getElementById('hora').value;
-      let equipamientoExtra = Array.from(document.getElementById('equipamientoExtra').selectedOptions).map(option => option.value).join(', ');
-
-      if (!fecha || !hora) {
-        alert('Por favor, complete todos los campos obligatorios.');
-        return;
+    // Actualizar los equipamientos disponibles
+    reserva.equipamientoExtra.split(', ').forEach(equip => {
+      if (equipamientosDisponibles[equip] > 0) {
+        equipamientosDisponibles[equip]--;
       }
+    });
+  });
+}
 
-      // Procesar la reserva (esto puede ser un envío a un servidor, por ejemplo)
-      let cantidadElemento = document.getElementById(salaSeleccionada);
-      let cantidad = parseInt(cantidadElemento.textContent);
-      
-      if (cantidad > 0) {
-        cantidad--;
-        cantidadElemento.textContent = cantidad;
-        
-        // Actualizar equipamiento
-        let equipamientoElemento = document.getElementById('equipamiento-' + salaSeleccionada);
-        if (equipamientoExtra) {
-          equipamientoElemento.textContent += ', ' + equipamientoExtra;
-        }
-        
-        alert(`Reserva confirmada para la sala: ${salaSeleccionada}\nFecha: ${fecha}\nHora: ${hora}\nEquipamiento extra: ${equipamientoExtra || 'Ninguno'}`);
-        
-        // Cerrar el modal
-        var modal = bootstrap.Modal.getInstance(document.getElementById('reservaModal'));
-        modal.hide();
-      }
-    }
-  </script>
+// Llamar a la función para cargar las reservas al inicio
+document.addEventListener("DOMContentLoaded", cargarReservas);
+
+</script>
+
 </body>
 </html>
