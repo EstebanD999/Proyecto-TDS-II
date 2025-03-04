@@ -145,6 +145,26 @@
     </div>
   </div>
 
+  <script>
+    // Función para establecer la fecha mínima en el calendario
+    function establecerFechaMinima() {
+      const today = new Date();
+      const day = String(today.getDate()).padStart(2, '0');
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const year = today.getFullYear();
+  
+      // Formato: YYYY-MM-DD
+      const fechaHoy = `${year}-${month}-${day}`;
+  
+      // Asignar la fecha mínima al campo de fecha
+      document.getElementById('fecha').setAttribute('min', fechaHoy);
+    }
+  
+    // Llamamos a la función para establecer la fecha mínima cuando se carga la página
+    window.onload = establecerFechaMinima;
+  </script>
+  
+
   <!-- Modal para reservar sala -->
   <div class="modal fade" id="reservaModal" tabindex="-1" aria-labelledby="reservaModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -248,84 +268,95 @@
   }
 
   // Función para guardar la reserva en localStorage
-  function guardarReserva() {
-    // Obtener los datos del formulario
-    let nombre = document.getElementById('nombre').value;
-    let fecha = document.getElementById('fecha').value;
-    let hora = document.getElementById('hora').value;
-    let horaFin = document.getElementById('horaFin').value;
+function guardarReserva() {
+  // Obtener los datos del formulario
+  let nombre = document.getElementById('nombre').value;
+  let fecha = document.getElementById('fecha').value;
+  let hora = document.getElementById('hora').value;
+  let horaFin = document.getElementById('horaFin').value;
 
-    if (!nombre || !fecha || !hora || !horaFin) {
-      alert('Por favor, complete todos los campos obligatorios.');
-      return;
-    }
-
-    // Obtener los equipos extra seleccionados
-    let equipamientoExtra = [];
-    let equipamientosSeleccionados = document.querySelectorAll('#equipamientoLista input:checked');
-    equipamientosSeleccionados.forEach(equip => {
-      let equipName = equip.value;
-      if (equipamientosDisponibles[equipName] > 0) {
-        equipamientoExtra.push(equipName);
-        equipamientosDisponibles[equipName]--;  // Reducir la cantidad disponible
-      } else {
-        alert(`El equipamiento "${equipName}" no está disponible.`);
-      }
-    });
-
-    // Guardar el nombre de la persona que hace la reserva
-    document.getElementById('usuarioReserva').textContent = nombre;
-
-    // Actualizar la columna "Persona que reservó" en la tabla
-    document.getElementById('persona-' + salaSeleccionada).textContent = nombre;
-
-    // Disminuir la cantidad de la sala reservada
-    let cantidadElemento = document.getElementById(salaSeleccionada);
-    let cantidad = parseInt(cantidadElemento.textContent);
-
-    if (cantidad > 0) {
-      cantidad--; // Disminuir la cantidad de salas disponibles
-      cantidadElemento.textContent = cantidad;
-
-      // Cambiar el estado de la sala a 'Ocupada' si ya no hay disponibilidad
-      if (cantidad === 0) {
-        let estadoElemento = document.getElementById('estado-' + salaSeleccionada);
-        estadoElemento.textContent = 'Ocupada';
-        estadoElemento.className = 'text-danger'; // Cambiar el color a rojo
-
-        // Deshabilitar el botón de reserva si ya no hay más disponibilidad
-        let botonReserva = document.querySelector(`#fila-${salaSeleccionada} td button`);
-        botonReserva.disabled = true;
-        botonReserva.className = 'btn btn-secondary'; // Cambiar estilo del botón
-      }
-
-      // Guardar la reserva en localStorage
-      let reservas = JSON.parse(localStorage.getItem("reservasRealizadas")) || [];
-      reservas.push({
-        sala: salaSeleccionada,
-        persona: nombre,
-        fecha: fecha,
-        hora: hora,
-        horaFin: horaFin,
-        equipamientoExtra: equipamientoExtra.join(', ') || 'Ninguno'
-      });
-      localStorage.setItem("reservasRealizadas", JSON.stringify(reservas));
-
-      // Cerrar el modal
-      var modal = bootstrap.Modal.getInstance(document.getElementById('reservaModal'));
-      modal.hide();
-
-      // Limpiar el formulario
-      document.getElementById('reservaForm').reset();
-
-      // Actualizar las cantidades de los equipamientos disponibles
-      actualizarCantidadEquipamiento();
-    } else {
-      alert('Lo siento, no hay más disponibilidad para esta sala.');
-    }
+  if (!nombre || !fecha || !hora || !horaFin) {
+    alert('Por favor, complete todos los campos obligatorios.');
+    return;
   }
 
- // Función para cargar las reservas desde localStorage al cargar la página
+  // Crear objeto Date para la fecha y hora seleccionadas
+  let fechaHoraSeleccionada = new Date(`${fecha}T${hora}:00`);
+  let ahora = new Date();
+
+  // Validar que la hora seleccionada no sea anterior a la actual
+  if (fechaHoraSeleccionada <= ahora) {
+    alert('No se puede reservar en una hora anterior a la actual.');
+    return;
+  }
+
+  // Obtener los equipos extra seleccionados
+  let equipamientoExtra = [];
+  let equipamientosSeleccionados = document.querySelectorAll('#equipamientoLista input:checked');
+  equipamientosSeleccionados.forEach(equip => {
+    let equipName = equip.value;
+    if (equipamientosDisponibles[equipName] > 0) {
+      equipamientoExtra.push(equipName);
+      equipamientosDisponibles[equipName]--;  // Reducir la cantidad disponible
+    } else {
+      alert(`El equipamiento "${equipName}" no está disponible.`);
+    }
+  });
+
+  // Guardar el nombre de la persona que hace la reserva
+  document.getElementById('usuarioReserva').textContent = nombre;
+
+  // Actualizar la columna "Persona que reservó" en la tabla
+  document.getElementById('persona-' + salaSeleccionada).textContent = nombre;
+
+  // Disminuir la cantidad de la sala reservada
+  let cantidadElemento = document.getElementById(salaSeleccionada);
+  let cantidad = parseInt(cantidadElemento.textContent);
+
+  if (cantidad > 0) {
+    cantidad--; // Disminuir la cantidad de salas disponibles
+    cantidadElemento.textContent = cantidad;
+
+    // Cambiar el estado de la sala a 'Ocupada' si ya no hay disponibilidad
+    if (cantidad === 0) {
+      let estadoElemento = document.getElementById('estado-' + salaSeleccionada);
+      estadoElemento.textContent = 'Ocupada';
+      estadoElemento.className = 'text-danger'; // Cambiar el color a rojo
+
+      // Deshabilitar el botón de reserva si ya no hay más disponibilidad
+      let botonReserva = document.querySelector(`#fila-${salaSeleccionada} td button`);
+      botonReserva.disabled = true;
+      botonReserva.className = 'btn btn-secondary'; // Cambiar estilo del botón
+    }
+
+    // Guardar la reserva en localStorage
+    let reservas = JSON.parse(localStorage.getItem("reservasRealizadas")) || [];
+    reservas.push({
+      sala: salaSeleccionada,
+      persona: nombre,
+      fecha: fecha,
+      hora: hora,
+      horaFin: horaFin,
+      equipamientoExtra: equipamientoExtra.join(', ') || 'Ninguno'
+    });
+    localStorage.setItem("reservasRealizadas", JSON.stringify(reservas));
+
+    // Cerrar el modal
+    var modal = bootstrap.Modal.getInstance(document.getElementById('reservaModal'));
+    modal.hide();
+
+    // Limpiar el formulario
+    document.getElementById('reservaForm').reset();
+
+    // Actualizar las cantidades de los equipamientos disponibles
+    actualizarCantidadEquipamiento();
+  } else {
+    alert('Lo siento, no hay más disponibilidad para esta sala.');
+  }
+}
+
+
+// Función para cargar las reservas desde localStorage al cargar la página
 function cargarReservas() {
   let reservas = JSON.parse(localStorage.getItem("reservasRealizadas")) || [];
 
@@ -353,18 +384,11 @@ function cargarReservas() {
       botonReserva.disabled = true;
       botonReserva.className = 'btn btn-secondary'; // Cambiar estilo del botón
     }
-
-    // Actualizar los equipamientos disponibles
-    reserva.equipamientoExtra.split(', ').forEach(equip => {
-      if (equipamientosDisponibles[equip] > 0) {
-        equipamientosDisponibles[equip]--;
-      }
-    });
   });
 }
 
 // Llamar a la función para cargar las reservas al inicio
-document.addEventListener("DOMContentLoaded", cargarReservas);
+cargarReservas();
 
 </script>
 
