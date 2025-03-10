@@ -5,107 +5,215 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Salas Reservadas - Universidad</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
   <style>
     body {
       display: flex;
       flex-direction: column;
       min-height: 100vh;
+      background-color: #f4f4f4;
     }
     .salas-section {
       flex: 1;
       padding: 50px 0;
     }
     .table-container {
-      background-color: #f8f9fa;
+      background: white;
       padding: 20px;
       border-radius: 10px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+      overflow-x: auto; /* Para tablas responsivas */
     }
-    .footer {
-      margin-top: auto;
+    .table thead th {
+      background-color: #343a40;
+      color: white;
+      text-align: center;
+      vertical-align: middle; /* Alineación vertical */
+    }
+    .table tbody td {
+      text-align: center;
+      vertical-align: middle; /* Alineación vertical */
+    }
+    .btn-action {
+      margin: 2px;
+      padding: 5px 10px;
+      font-size: 14px;
+      min-width: 80px; /* Ancho mínimo para los botones */
+    }
+    .table th, .table td {
+      white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+    }
+    .table th:nth-child(7), .table td:nth-child(7) {
+      width: 200px; /* Ancho fijo para la columna de acciones */
     }
   </style>
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="#">Universidad BVI</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="inicio.html">Inicio</a></li>
-          <li class="nav-item"><a class="nav-link" href="reservas.html">Reservar</a></li>
-          <li class="nav-item"><a class="nav-link active" href="salas_Reservadas.html">Salas Reservadas</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-  
+
+  <!-- Contenedor para el header -->
+  <div id="header"></div>
+
   <div class="container salas-section">
-    <h2 class="text-center">Salas Reservadas</h2>
-    <div class="table-container mt-4">
-      <table class="table table-striped text-center">
-        <thead class="table-dark">
+    <h2 class="text-center mb-4">Salas Reservadas</h2>
+    <div class="table-container">
+      <table class="table table-striped table-hover">
+        <thead>
           <tr>
             <th>Nombre de la Sala</th>
             <th>Persona</th>
             <th>Fecha</th>
             <th>Hora Inicio</th>
             <th>Hora Fin</th>
-            <th>Equipamiento Extra</th>
+            <th>Dispositivos</th>
             <th>Acciones</th>
           </tr>
         </thead>
-        <tbody id="tablaReservas">
-        </tbody>
+        <tbody id="tablaReservas"></tbody>
       </table>
     </div>
   </div>
 
-  <footer class="footer text-center bg-dark text-white py-3">
-    <p>&copy; 2025 Universidad BVI | <a href="#" class="text-white">Política de privacidad</a></p>
-  </footer>
+  <div class="modal fade" id="reservaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Editar Reserva</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="reservaForm">
+            <input type="hidden" id="salaId">
+            <div class="mb-3">
+              <label for="Hora_Inicio" class="form-label">Hora de Inicio</label>
+              <input type="time" class="form-control" id="Hora_Inicio" required>
+            </div>
+            <div class="mb-3">
+              <label for="Hora_Fin" class="form-label">Hora de Fin</label>
+              <input type="time" class="form-control" id="Hora_Fin" required>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary" onclick="guardarReserva()">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      let reservas = JSON.parse(localStorage.getItem("reservasRealizadas")) || [];
+    document.addEventListener("DOMContentLoaded", function () {
+      // Cargar header
+      fetch("header.html")
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById("header").innerHTML = data;
+          return fetch("../Backend/session.php");
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.loggedIn && data.isAdmin) {
+            const adminButton = document.createElement("li");
+            adminButton.className = "nav-item";
+            adminButton.innerHTML = '<a class="nav-link" href="Salas_Reservadas.html">Lista Reservas</a>';
+            document.querySelector("#header .navbar-nav").appendChild(adminButton);
+          }
+        })
+        .catch(error => console.error("Error en la carga del header o sesión:", error));
+
       let tabla = document.getElementById("tablaReservas");
 
-      // Función para actualizar la tabla
-      function actualizarTabla() {
-        tabla.innerHTML = "";
-        if (reservas.length === 0) {
-          tabla.innerHTML = '<tr><td colspan="7">No hay reservas registradas</td></tr>';
-        } else {
-          reservas.forEach((reserva, index) => {
-            let fila = `<tr>
-                          <td>${reserva.sala}</td>
-                          <td>${reserva.persona}</td>
-                          <td>${reserva.fecha}</td>
-                          <td>${reserva.hora}</td>
-                          <td>${reserva.horaFin}</td>
-                          <td>${reserva.equipamientoExtra || 'Ninguno'}</td>
-                          <td><button class="btn btn-danger btn-sm" onclick="eliminarReserva(${index})">Eliminar</button></td>
-                        </tr>`;
-            tabla.innerHTML += fila;
-          });
-        }
+      function cargarReservas() {
+        fetch("../Backend/reservas.php")
+          .then(response => response.json())
+          .then(data => {
+            let reservas = data.reservas;
+            tabla.innerHTML = "";
+
+            if (reservas.length === 0) {
+              tabla.innerHTML = '<tr><td colspan="7">No hay reservas registradas</td></tr>';
+            } else {
+              reservas.forEach((reserva) => {
+                let fila = `<tr>
+                              <td>${reserva.Sala_Nombre}</td>
+                              <td>${reserva.Usuario_Nombre}</td>
+                              <td>${new Date().toLocaleDateString()}</td>
+                              <td>${reserva.Hora_Inicio}</td>
+                              <td>${reserva.Hora_Fin}</td>
+                              <td>${reserva.Dispositivos || "N/A"}</td>
+                              <td>
+                                <button class="btn btn-danger btn-action" onclick="eliminarReserva(${reserva.Horario_Id})">Eliminar</button>
+                                <button class="btn btn-warning btn-action" onclick="editarReserva(${reserva.Horario_Id}, '${reserva.Hora_Inicio}', '${reserva.Hora_Fin}')">Editar</button>
+                              </td>
+                            </tr>`;
+                tabla.innerHTML += fila;
+              });
+            }
+          })
+          .catch(error => console.error("Error al cargar las reservas:", error));
       }
 
-      // Función para eliminar la reserva
-      window.eliminarReserva = function(index) {
-        // Confirmación antes de eliminar
-        if (confirm("¿Estás seguro de que deseas eliminar esta reserva?")) {
-          reservas.splice(index, 1); // Elimina la reserva del arreglo
-          localStorage.setItem("reservasRealizadas", JSON.stringify(reservas)); // Actualiza el localStorage
-          actualizarTabla(); // Vuelve a cargar la tabla con las reservas restantes
-        }
-      }
+      window.editarReserva = function(id, horaInicio, horaFin) {
+        document.getElementById("salaId").value = id;
+        document.getElementById("Hora_Inicio").value = horaInicio;
+        document.getElementById("Hora_Fin").value = horaFin;
+        
+        let modal = new bootstrap.Modal(document.getElementById('reservaModal'));
+        modal.show();
+      };
 
-      // Inicializa la tabla al cargar la página
-      actualizarTabla();
+      window.guardarReserva = function () {
+        let id = document.getElementById("salaId").value;
+        let horaInicio = document.getElementById("Hora_Inicio").value;
+        let horaFin = document.getElementById("Hora_Fin").value;
+
+        let formData = new FormData();
+        formData.append("Horario_Id", id);
+        formData.append("Hora_Inicio", horaInicio);
+        formData.append("Hora_Fin", horaFin);
+
+        fetch("../Backend/Editar_reserva.php", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              alert("Reserva editada con éxito");
+              cargarReservas();
+              bootstrap.Modal.getInstance(document.getElementById("reservaModal")).hide();
+            } else {
+              alert("Error: " + data.error);
+            }
+          })
+          .catch((error) => console.error("Error al editar la reserva:", error));
+      };
+
+      window.eliminarReserva = function(horarioId) {
+        if (confirm("¿Estás seguro de que deseas eliminar esta reserva?")) {
+          let formData = new FormData();
+          formData.append("Horario_Id", horarioId);
+
+          fetch("../Backend/Eliminar_reserva.php", {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                alert("Reserva eliminada correctamente");
+                cargarReservas();
+              } else {
+                alert("Error: " + data.error);
+              }
+            })
+            .catch((error) => console.error("Error al eliminar la reserva:", error));
+        }
+      };
+
+      cargarReservas();
     });
   </script>
+
 </body>
 </html>

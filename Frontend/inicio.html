@@ -94,28 +94,25 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      fetch("footer.html")
-        .then(response => response.text())
-        .then(data => {
-          document.getElementById("footer").innerHTML = data;
-        })
-        .catch(error => console.error("Error cargando el footer:", error));
-    });
-  </script>
-
-  <!-- Agregar Bootstrap JS y dependencias -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Cargar la cabecera y el footer dinámicamente con JavaScript -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
+      // Cargar header
       fetch("header.html")
         .then(response => response.text())
         .then(data => {
           document.getElementById("header").innerHTML = data;
+          return fetch("../Backend/session.php"); // 🔹 Verificar sesión después de cargar el header
         })
-        .catch(error => console.error("Error cargando la cabecera:", error));
-      
+        .then(response => response.json())
+        .then(data => {
+          if (data.loggedIn && data.isAdmin) {
+            const adminButton = document.createElement("li");
+            adminButton.className = "nav-item";
+            adminButton.innerHTML = '<a class="nav-link" href="salas_Reservadas.html">Lista Reservas</a>';
+            document.querySelector("#header .navbar-nav").appendChild(adminButton);
+          }
+        })
+        .catch(error => console.error("Error cargando la cabecera o verificando sesión:", error));
+  
+      // Cargar footer
       fetch("footer.html")
         .then(response => response.text())
         .then(data => {
@@ -123,41 +120,44 @@
         })
         .catch(error => console.error("Error cargando el footer:", error));
     });
-  </script>
-
-  <script>
-    document.getElementById("reservarBtn").addEventListener("click", () => {
-    const salaId = document.getElementById("salaSelect").value; // Verifica que el ID es correcto
-    const HoraInicio = document.getElementById("horaInicio").value;
-    const HoraFin = document.getElementById("horaFin").value;
-
-    if (!salaId) {
+  
+    // Función para manejar la reserva
+    function reservarSala() {
+      const salaId = document.getElementById("salaSelect")?.value; 
+      const HoraInicio = document.getElementById("horaInicio")?.value;
+      const HoraFin = document.getElementById("horaFin")?.value;
+  
+      if (!salaId) {
         alert("Por favor, selecciona una sala.");
         return;
-    }
-
-    fetch("guardar_reserva.php", {
+      }
+  
+      fetch("guardar_reserva.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            sala_id: salaId,
-            Hora_Inicio: HoraInicio,
-            Hora_Fin: HoraFin
+          sala_id: salaId,
+          Hora_Inicio: HoraInicio,
+          Hora_Fin: HoraFin
         })
-    })
-    .then(response => response.json())
-    .then(data => {
+      })
+      .then(response => response.json())
+      .then(data => {
         console.log("Respuesta del servidor:", data);
-        if (data.success) {
-            alert("Reserva guardada correctamente.");
-        } else {
-            alert("Error: " + data.error);
-        }
-    })
-    .catch(error => console.error("Error:", error));
-});
-
+        alert(data.success ? "Reserva guardada correctamente." : "Error: " + data.error);
+      })
+      .catch(error => console.error("Error:", error));
+    }
+  
+    // Esperar a que el botón esté disponible antes de asignar el evento
+    document.addEventListener("DOMContentLoaded", () => {
+      const reservarBtn = document.getElementById("reservarBtn");
+      if (reservarBtn) {
+        reservarBtn.addEventListener("click", reservarSala);
+      }
+    });
   </script>
+  
 
 </body>
 </html>
