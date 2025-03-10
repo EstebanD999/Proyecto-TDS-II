@@ -26,7 +26,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     try {
-        // Preparar la consulta SQL
+        // Obtener el ID de la sala asociada al horario que se está editando
+        $stmt = $pdo->prepare("SELECT Sala_Id FROM reservas WHERE Horario_Id = ?");
+        $stmt->execute([$horarioId]);
+        $reserva = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$reserva) {
+            $response["error"] = "No se encontró la reserva asociada al horario.";
+            echo json_encode($response);
+            exit;
+        }
+
+        $sala_id = $reserva['Sala_Id'];
+
+        // Verificar si ya existe una reserva en la misma sala con la misma hora de inicio o fin
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) as count 
+            FROM reservas 
+            JOIN horarios ON reservas.Horario_Id = horarios.Horario_Id 
+            WHERE reservas.Sala_Id = ? 
+            AND (horarios.Hora_Inicio = ? OR horarios.Hora_Fin = ?)
+            AND reservas.Horario_Id != ?
+        ");
+        $stmt->execute([$sala_id, $horaInicio, $horaFin, $horarioId]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($result['count'] > 0) {
+            $response["error"] = "Ya existe una reserva en la misma sala con la misma hora de inicio o fin.";
+            echo json_encode($response);
+            exit;
+        }
+
+        // Preparar la consulta SQL para actualizar el horario
         $sql = "UPDATE horarios SET Hora_Inicio = ?, Hora_Fin = ? WHERE Horario_Id = ?";
         $stmt = $pdo->prepare($sql);
 

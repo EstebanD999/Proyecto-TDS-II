@@ -42,10 +42,77 @@
     .table th, .table td {
       white-space: nowrap; /* Evita que el texto se divida en varias líneas */
     }
+
+    /* Estilos para el mensaje de éxito */
+    .alert-success {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background-color: #4CAF50; /* Verde */
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      animation: slideDown 0.5s ease-out, fadeOut 0.5s ease-out 2.5s;
+    }
+
+    /* Estilos para el mensaje de error */
+    .alert-danger {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      background-color: #F44336; /* Rojo */
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      animation: slideDown 0.5s ease-out, fadeOut 0.5s ease-out 2.5s;
+    }
+
+    /* Estilos para la tabla de horarios */
+    #horariosDisponibles table {
+      width: 100%;
+      margin-top: 10px;
+    }
+    #horariosDisponibles th, #horariosDisponibles td {
+      text-align: center;
+      padding: 8px;
+    }
+    #horariosDisponibles .text-danger {
+      color: #F44336; /* Rojo para horas ocupadas */
+    }
+    #horariosDisponibles .text-success {
+      color: #4CAF50; /* Verde para horas disponibles */
+    }
+
+    @keyframes slideDown {
+      from {
+        transform: translateY(-100%);
+      }
+      to {
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+      }
+    }
   </style>
 </head>
 <body>
-
   <!-- Aquí se cargará la cabecera desde header.html -->
   <div id="header"></div>
 
@@ -81,6 +148,14 @@
             <div class="mb-3">
               <label for="Hora_Fin" class="form-label">Hora de Fin</label>
               <input type="time" class="form-control" id="Hora_Fin" required>
+            </div>
+
+            <!-- Tabla de horarios disponibles -->
+            <div class="mb-3">
+              <label class="form-label">Horarios Disponibles</label>
+              <div id="horariosDisponibles" class="table-responsive">
+                <!-- Aquí se cargará la tabla de horarios -->
+              </div>
             </div>
 
             <hr>
@@ -133,6 +208,7 @@
         if (data.loggedIn && data.isAdmin) {
           const adminButton = document.createElement("li");
           adminButton.className = "nav-item";
+          adminButton.innerHTML = '<a class="nav-link" href="reservas.html">Reservar</a>';
           adminButton.innerHTML = '<a class="nav-link" href="Salas_Reservadas.html">Lista Reservas</a>';
           document.querySelector("#header .navbar-nav").appendChild(adminButton);
         }
@@ -185,14 +261,93 @@
   function abrirModal(id, nombre) {
     console.log("ID recibido en abrirModal:", id); // Verificar en consola
     document.getElementById("salaId").value = id; // Asegurar que se asigna correctamente
+
+    // Cargar los horarios disponibles
+    cargarHorariosDisponibles(id);
+
     var modal = new bootstrap.Modal(document.getElementById("reservaModal"));
     modal.show();
+  }
+
+  function cargarHorariosDisponibles(salaId) {
+    fetch(`../Backend/horarios_ocupados.php?sala_id=${salaId}`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const horariosOcupados = data.horarios_ocupados;
+          const horariosDisponibles = document.getElementById("horariosDisponibles");
+          horariosDisponibles.innerHTML = ""; // Limpiar el contenedor
+
+          // Crear la tabla de horarios
+          const table = document.createElement("table");
+          table.className = "table table-bordered";
+
+          // Crear el encabezado de la tabla
+          const thead = document.createElement("thead");
+          thead.innerHTML = `
+            <tr>
+              <th>Hora</th>
+              <th>Disponibilidad</th>
+            </tr>
+          `;
+          table.appendChild(thead);
+
+          // Crear el cuerpo de la tabla
+          const tbody = document.createElement("tbody");
+
+          // Definir el rango de horas (por ejemplo, de 8:00 a 20:00)
+          const horaInicio = 8;
+          const horaFin = 24;
+
+          for (let hora = horaInicio; hora <= horaFin; hora++) {
+            const horaFormateada = `${hora.toString().padStart(2, '0')}:00`;
+            const horaOcupada = horariosOcupados.some(horario => {
+              const inicio = new Date(`1970-01-01T${horario.hora_inicio}`);
+              const fin = new Date(`1970-01-01T${horario.hora_fin}`);
+              const horaActual = new Date(`1970-01-01T${horaFormateada}`);
+              return horaActual >= inicio && horaActual < fin;
+            });
+
+            const fila = document.createElement("tr");
+            fila.innerHTML = `
+              <td>${horaFormateada}</td>
+              <td>${horaOcupada ? '<span class="text-danger">Ocupada</span>' : '<span class="text-success">Disponible</span>'}</td>
+            `;
+            tbody.appendChild(fila);
+          }
+
+          table.appendChild(tbody);
+          horariosDisponibles.appendChild(table);
+        } else {
+          mostrarMensajeError("Error al cargar los horarios disponibles.");
+        }
+      })
+      .catch(error => {
+        console.error("Error al cargar los horarios:", error);
+        mostrarMensajeError("Hubo un error al cargar los horarios. Intenta de nuevo.");
+      });
   }
 
   function guardarReserva() {
     const id = parseInt(document.getElementById("salaId").value, 10);
     const Hora_Inicio = document.getElementById("Hora_Inicio").value;
     const Hora_Fin = document.getElementById("Hora_Fin").value;
+
+    // Obtener la hora actual
+    const ahora = new Date();
+    const horaActual = ahora.getHours().toString().padStart(2, '0') + ":" + ahora.getMinutes().toString().padStart(2, '0');
+
+    // Validar que la hora de inicio no sea anterior a la hora actual
+    if (Hora_Inicio < horaActual) {
+      alert("No puedes reservar una sala antes de la hora actual.");
+      return;
+    }
+
+    // Validar que la hora de fin no sea anterior a la hora de inicio
+    if (Hora_Fin <= Hora_Inicio) {
+      alert("La hora de fin debe ser posterior a la hora de inicio.");
+      return;
+    }
 
     // Dispositivos
     const videoBeam = document.getElementById("videoBeam").checked ? 1 : 0;
@@ -222,7 +377,8 @@
     .then(data => {
       console.log("Respuesta de guardar_reserva.php:", data); // Verificar la respuesta
       if (data.success) {
-        alert("Reserva confirmada");
+        // Mostrar mensaje de éxito
+        mostrarMensajeExito("¡Reserva confirmada con éxito!");
 
         // Cerrar el modal después de la respuesta exitosa
         var modal = bootstrap.Modal.getInstance(document.getElementById("reservaModal"));
@@ -231,13 +387,46 @@
         // Si lo deseas, recargar la tabla de salas
         cargarSalas(); 
       } else {
-        alert("Error al reservar: " + data.message);
+        // Mostrar mensaje de error
+        mostrarMensajeError(data.message || "Error al reservar. Este horario no se encuentra disponible.");
       }
     })
     .catch(error => {
       console.error("Error al guardar la reserva:", error);
-      alert("Hubo un error al hacer la reserva. Intenta de nuevo.");
+      mostrarMensajeError("Hubo un error al hacer la reserva. Intenta de nuevo.");
     });
+  }
+
+  // Función para mostrar el mensaje de éxito
+  function mostrarMensajeExito(mensaje) {
+    // Crear el elemento del mensaje
+    const alertDiv = document.createElement("div");
+    alertDiv.className = "alert-success";
+    alertDiv.textContent = mensaje;
+
+    // Agregar el mensaje al cuerpo del documento
+    document.body.appendChild(alertDiv);
+
+    // Eliminar el mensaje después de 3 segundos
+    setTimeout(() => {
+      document.body.removeChild(alertDiv);
+    }, 3000);
+  }
+
+  // Función para mostrar mensajes de error
+  function mostrarMensajeError(mensaje) {
+    // Crear el elemento del mensaje
+    const alertDiv = document.createElement("div");
+    alertDiv.className = "alert-danger";
+    alertDiv.textContent = mensaje;
+
+    // Agregar el mensaje al cuerpo del documento
+    document.body.appendChild(alertDiv);
+
+    // Eliminar el mensaje después de 3 segundos
+    setTimeout(() => {
+      document.body.removeChild(alertDiv);
+    }, 4000);
   }
   </script>
 

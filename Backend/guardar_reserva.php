@@ -28,7 +28,6 @@ $microfono = isset($data['microfono']) && $data['microfono'] ? 1 : 0;
 $portatil = isset($data['portatil']) && $data['portatil'] ? 1 : 0;
 $cables = isset($data['cables_adicionales']) && $data['cables_adicionales'] ? 1 : 0;
 
-
 try {
     if (!isset($pdo)) {
         throw new Exception("Error en la conexión a la base de datos");
@@ -39,6 +38,22 @@ try {
     $stmt->execute([$sala_id]);
     if ($stmt->rowCount() === 0) {
         echo json_encode(["success" => false, "error" => "La sala seleccionada no existe"]);
+        exit;
+    }
+
+    // Verificar si ya existe una reserva con la misma hora de inicio o la misma hora de fin
+    $stmt = $pdo->prepare("
+        SELECT COUNT(*) as count 
+        FROM reservas 
+        JOIN horarios ON reservas.Horario_Id = horarios.Horario_Id 
+        WHERE reservas.Sala_Id = ? 
+        AND (horarios.Hora_Inicio = ? OR horarios.Hora_Fin = ?)
+    ");
+    $stmt->execute([$sala_id, $Hora_Inicio, $Hora_Fin]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($result['count'] > 0) {
+        echo json_encode(["success" => false, "error" => "Ya existe una reserva en la misma hora de inicio o fin"]);
         exit;
     }
 

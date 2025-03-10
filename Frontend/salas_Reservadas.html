@@ -22,35 +22,72 @@
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-      overflow-x: auto; /* Para tablas responsivas */
+      overflow-x: auto;
     }
     .table thead th {
       background-color: #343a40;
       color: white;
       text-align: center;
-      vertical-align: middle; /* Alineación vertical */
+      vertical-align: middle;
     }
     .table tbody td {
       text-align: center;
-      vertical-align: middle; /* Alineación vertical */
+      vertical-align: middle;
     }
     .btn-action {
       margin: 2px;
       padding: 5px 10px;
       font-size: 14px;
-      min-width: 80px; /* Ancho mínimo para los botones */
+      min-width: 80px;
     }
     .table th, .table td {
-      white-space: nowrap; /* Evita que el texto se divida en varias líneas */
+      white-space: nowrap;
     }
     .table th:nth-child(7), .table td:nth-child(7) {
-      width: 200px; /* Ancho fijo para la columna de acciones */
+      width: 200px;
+    }
+    .alert-message {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-size: 18px;
+      font-weight: bold;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      animation: slideDown 0.5s ease-out, fadeOut 0.5s ease-out 2.5s;
+    }
+    .alert-success {
+      background-color: #4CAF50;
+    }
+    .alert-warning {
+      background-color: #FFA500;
+    }
+    .alert-danger {
+      background-color: #F44336;
+    }
+    @keyframes slideDown {
+      from {
+        transform: translateY(-100%);
+      }
+      to {
+        transform: translateY(0);
+      }
+    }
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+      }
     }
   </style>
 </head>
 <body>
-
-  <!-- Contenedor para el header -->
   <div id="header"></div>
 
   <div class="container salas-section">
@@ -91,6 +128,10 @@
               <label for="Hora_Fin" class="form-label">Hora de Fin</label>
               <input type="time" class="form-control" id="Hora_Fin" required>
             </div>
+            <div id="mensajeReserva" class="alert alert-danger" style="display: none;"></div>
+            <div id="horariosDisponibles" class="table-responsive">
+              <!-- Aquí se cargará la tabla de horarios -->
+            </div>
           </form>
         </div>
         <div class="modal-footer">
@@ -103,7 +144,6 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      // Cargar header
       fetch("header.html")
         .then(response => response.text())
         .then(data => {
@@ -143,7 +183,7 @@
                               <td>${reserva.Dispositivos || "N/A"}</td>
                               <td>
                                 <button class="btn btn-danger btn-action" onclick="eliminarReserva(${reserva.Horario_Id})">Eliminar</button>
-                                <button class="btn btn-warning btn-action" onclick="editarReserva(${reserva.Horario_Id}, '${reserva.Hora_Inicio}', '${reserva.Hora_Fin}')">Editar</button>
+                                <button class="btn btn-warning btn-action" onclick="editarReserva(${reserva.Horario_Id}, '${reserva.Hora_Inicio}', '${reserva.Hora_Fin}', ${reserva.Sala_Id})">Editar</button>
                               </td>
                             </tr>`;
                 tabla.innerHTML += fila;
@@ -153,43 +193,148 @@
           .catch(error => console.error("Error al cargar las reservas:", error));
       }
 
-      window.editarReserva = function(id, horaInicio, horaFin) {
+      window.editarReserva = function(id, horaInicio, horaFin, salaId) {
         document.getElementById("salaId").value = id;
         document.getElementById("Hora_Inicio").value = horaInicio;
         document.getElementById("Hora_Fin").value = horaFin;
-        
+        document.getElementById("mensajeReserva").style.display = "none";
+
+        // Cargar los horarios disponibles
+        cargarHorariosDisponibles(salaId);
+
         let modal = new bootstrap.Modal(document.getElementById('reservaModal'));
         modal.show();
       };
+
+      function cargarHorariosDisponibles(salaId) {
+        fetch(`../Backend/horarios_ocupados.php?sala_id=${salaId}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              const horariosOcupados = data.horarios_ocupados;
+              const horariosDisponibles = document.getElementById("horariosDisponibles");
+              horariosDisponibles.innerHTML = "";
+
+              const table = document.createElement("table");
+              table.className = "table table-bordered";
+
+              const thead = document.createElement("thead");
+              thead.innerHTML = `
+                <tr>
+                  <th>Hora</th>
+                  <th>Disponibilidad</th>
+                </tr>
+              `;
+              table.appendChild(thead);
+
+              const tbody = document.createElement("tbody");
+
+              const horaInicio = 8;
+              const horaFin = 24;
+
+              for (let hora = horaInicio; hora <= horaFin; hora++) {
+                const horaFormateada = `${hora.toString().padStart(2, '0')}:00`;
+                const horaOcupada = horariosOcupados.some(horario => {
+                  const inicio = new Date(`1970-01-01T${horario.hora_inicio}`);
+                  const fin = new Date(`1970-01-01T${horario.hora_fin}`);
+                  const horaActual = new Date(`1970-01-01T${horaFormateada}`);
+                  return horaActual >= inicio && horaActual < fin;
+                });
+
+                const fila = document.createElement("tr");
+                fila.innerHTML = `
+                  <td>${horaFormateada}</td>
+                  <td>${horaOcupada ? '<span class="text-danger">Ocupada</span>' : '<span class="text-success">Disponible</span>'}</td>
+                `;
+                tbody.appendChild(fila);
+              }
+
+              table.appendChild(tbody);
+              horariosDisponibles.appendChild(table);
+            } else {
+              mostrarMensaje("Error al cargar los horarios disponibles.", "danger");
+            }
+          })
+          .catch(error => {
+            console.error("Error al cargar los horarios:", error);
+            mostrarMensaje("Hubo un error al cargar los horarios. Intenta de nuevo.", "danger");
+          });
+      }
 
       window.guardarReserva = function () {
         let id = document.getElementById("salaId").value;
         let horaInicio = document.getElementById("Hora_Inicio").value;
         let horaFin = document.getElementById("Hora_Fin").value;
 
-        let formData = new FormData();
-        formData.append("Horario_Id", id);
-        formData.append("Hora_Inicio", horaInicio);
-        formData.append("Hora_Fin", horaFin);
+        const ahora = new Date();
+        const horaActual = ahora.getHours().toString().padStart(2, '0') + ":" + ahora.getMinutes().toString().padStart(2, '0');
 
-        fetch("../Backend/Editar_reserva.php", {
-          method: "POST",
-          body: formData,
-        })
-          .then((response) => response.json())
-          .then((data) => {
+        if (horaInicio < horaActual) {
+          mostrarMensaje("No puedes reservar una sala antes de la hora actual.", "danger");
+          return;
+        }
+
+        if (horaFin <= horaInicio) {
+          mostrarMensaje("La hora de fin debe ser posterior a la hora de inicio.", "danger");
+          return;
+        }
+
+        // Verificar si la hora seleccionada está ocupada
+        fetch(`../Backend/horarios_ocupados.php?sala_id=${document.getElementById("salaId").value}`)
+          .then(response => response.json())
+          .then(data => {
             if (data.success) {
-              alert("Reserva editada con éxito");
-              cargarReservas();
-              bootstrap.Modal.getInstance(document.getElementById("reservaModal")).hide();
+              const horariosOcupados = data.horarios_ocupados.php;
+              const horaInicioSeleccionada = new Date(`1970-01-01T${horaInicio}`);
+              const horaFinSeleccionada = new Date(`1970-01-01T${horaFin}`);
+
+              const horaOcupada = horariosOcupados.some(horario => {
+                const inicio = new Date(`1970-01-01T${horario.hora_inicio}`);
+                const fin = new Date(`1970-01-01T${horario.hora_fin}`);
+                return (horaInicioSeleccionada >= inicio && horaInicioSeleccionada < fin) ||
+                       (horaFinSeleccionada > inicio && horaFinSeleccionada <= fin);
+              });
+
+              if (horaOcupada) {
+                mostrarMensaje("La sala ya está reservada en ese horario.", "danger");
+                return;
+              }
+
+              // Si no está ocupada, proceder con la reserva
+              let formData = new FormData();
+              formData.append("Horario_Id", id);
+              formData.append("Hora_Inicio", horaInicio);
+              formData.append("Hora_Fin", horaFin);
+
+              fetch("../Backend/Editar_reserva.php", {
+                method: "POST",
+                body: formData,
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  if (data.success) {
+                    mostrarMensaje("Reserva editada con éxito", "warning");
+                    cargarReservas();
+                    bootstrap.Modal.getInstance(document.getElementById("reservaModal")).hide();
+                  } else {
+                    mostrarMensaje("Error: " + data.error, "danger");
+                  }
+                })
+                .catch((error) => {
+                  console.error("Error al editar la reserva:", error);
+                  mostrarMensaje("Hubo un error al editar la reserva. Intenta de nuevo.", "danger");
+                });
             } else {
-              alert("Error: " + data.error);
+              mostrarMensaje("Error al verificar los horarios ocupados.", "danger");
             }
           })
-          .catch((error) => console.error("Error al editar la reserva:", error));
+          .catch(error => {
+            console.error("Error al verificar los horarios ocupados:", error);
+            mostrarMensaje("Hubo un error al verificar los horarios ocupados. Intenta de nuevo.", "danger");
+          });
       };
 
-      window.eliminarReserva = function(horarioId) {
+      window.eliminarReserva = function (horarioId) {
         if (confirm("¿Estás seguro de que deseas eliminar esta reserva?")) {
           let formData = new FormData();
           formData.append("Horario_Id", horarioId);
@@ -201,19 +346,31 @@
             .then((response) => response.json())
             .then((data) => {
               if (data.success) {
-                alert("Reserva eliminada correctamente");
+                mostrarMensaje("Reserva eliminada correctamente", "danger");
                 cargarReservas();
               } else {
-                alert("Error: " + data.error);
+                mostrarMensaje("Error: " + data.error, "danger");
               }
             })
-            .catch((error) => console.error("Error al eliminar la reserva:", error));
+            .catch((error) => {
+              console.error("Error al eliminar la reserva:", error);
+              mostrarMensaje("Hubo un error al eliminar la reserva. Intenta de nuevo.", "danger");
+            });
         }
       };
+
+      function mostrarMensaje(mensaje, tipo) {
+        const alertDiv = document.createElement("div");
+        alertDiv.className = `alert-message alert-${tipo}`;
+        alertDiv.textContent = mensaje;
+        document.body.appendChild(alertDiv);
+        setTimeout(() => {
+          document.body.removeChild(alertDiv);
+        }, 3000);
+      }
 
       cargarReservas();
     });
   </script>
-
 </body>
 </html>
