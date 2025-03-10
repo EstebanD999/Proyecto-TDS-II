@@ -3,10 +3,10 @@ include('conexion.php'); // Incluye el archivo de conexión a la base de datos
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Verifica si los campos están definidos en $_POST
-    if (isset($_POST['nameRegister']) && isset($_POST['emailRegister']) && isset($_POST['passwordLogin'])) {
+    if (isset($_POST['nameRegister']) && isset($_POST['emailRegister']) && isset($_POST['passwordRegister'])) {
         $nombre = $_POST['nameRegister'];
         $email = $_POST['emailRegister'];
-        $password = $_POST['passwordLogin'];
+        $password = $_POST['passwordRegister'];
 
         // Verifica que los campos no estén vacíos
         if (empty($nombre) || empty($email) || empty($password)) {

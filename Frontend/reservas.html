@@ -3,215 +3,134 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Salas Disponibles - Universidad</title>
+  <title>Reservar Sala</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-    .salas-section {
-      flex: 1;
-      padding: 50px 0;
-    }
-    .table-container {
-      background-color: #f8f9fa;
-      padding: 20px;
-      border-radius: 10px;
-    }
-    .footer {
-      margin-top: auto;
-    }
-  </style>
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="#">Universidad BVI</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="inicio.html">Inicio</a></li>
-          <li class="nav-item"><a class="nav-link active" href="reservas.html">Reservar Sala</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-  
-  <div class="container salas-section">
-    <h2 class="text-center">Disponibilidad de Salas</h2>
-    <div class="table-container mt-4">
-      <table class="table table-striped text-center">
-        <thead class="table-dark">
-          <tr>
-            <th>Nombre de la Sala</th>
-            <th>Cantidad Disponible</th>
-            <th>Estado</th>
-            <th>Equipamiento</th>
-            <th>Acción</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Aula Magna</td>
-            <td id="Aula Magna">3</td>
-            <td class="text-success">Disponible</td>
-            <td id="equipamiento-Aula Magna">Proyector, Sonido</td>
-            <td><button class="btn btn-primary" onclick="reservarSala('Aula Magna')">Reservar</button></td>
-          </tr>
-          <tr>
-            <td>Auditorio Central</td>
-            <td id="Auditorio Central">1</td>
-            <td class="text-warning">Última disponible</td>
-            <td id="equipamiento-Auditorio Central">Micrófonos, Pantalla LED</td>
-            <td><button class="btn btn-primary" onclick="reservarSala('Auditorio Central')">Reservar</button></td>
-          </tr>
-          <tr>
-            <td>Sala de Conferencias</td>
-            <td id="Sala de Conferencias">0</td>
-            <td class="text-danger">Agotado</td>
-            <td id="equipamiento-Sala de Conferencias">Videoconferencia, Pizarra</td>
-            <td><button class="btn btn-secondary" disabled>Reservar</button></td>
-          </tr>
-          <tr>
-            <td>Sala de Reuniones</td>
-            <td id="Sala de Reuniones">2</td>
-            <td class="text-success">Disponible</td>
-            <td id="equipamiento-Sala de Reuniones">TV, Wifi</td>
-            <td><button class="btn btn-primary" onclick="reservarSala('Sala de Reuniones')">Reservar</button></td>
-          </tr>
-          <tr>
-            <td>Laboratorio de Cómputo</td>
-            <td id="Laboratorio de Cómputo">4</td>
-            <td class="text-success">Disponible</td>
-            <td id="equipamiento-Laboratorio de Cómputo">Computadoras, Software especializado</td>
-            <td><button class="btn btn-primary" onclick="reservarSala('Laboratorio de Cómputo')">Reservar</button></td>
-          </tr>
-          <tr>
-            <td>Sala de Estudio</td>
-            <td id="Sala de Estudio">5</td>
-            <td class="text-success">Disponible</td>
-            <td id="equipamiento-Sala de Estudio">Mesas de trabajo, Iluminación</td>
-            <td><button class="btn btn-primary" onclick="reservarSala('Sala de Estudio')">Reservar</button></td>
-          </tr>
-          <tr>
-            <td>Sala de Talleres</td>
-            <td id="Sala de Talleres">3</td>
-            <td class="text-success">Disponible</td>
-            <td id="equipamiento-Sala de Talleres">Herramientas, Materiales</td>
-            <td><button class="btn btn-primary" onclick="reservarSala('Sala de Talleres')">Reservar</button></td>
-          </tr>
-          <tr>
-            <td>Biblioteca</td>
-            <td id="Biblioteca">2</td>
-            <td class="text-success">Disponible</td>
-            <td id="equipamiento-Biblioteca">Libros, Computadoras</td>
-            <td><button class="btn btn-primary" onclick="reservarSala('Biblioteca')">Reservar</button></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+
+  <!-- Aquí se cargará la cabecera desde header.html -->
+  <div id="header"></div>
+
+  <div class="container mt-5">
+    <h2 class="text-center">Reservar Sala</h2>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Nombre de la Sala</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody id="salasBody"></tbody>
+    </table>
   </div>
 
-  <!-- Modal para reservar sala -->
-  <div class="modal fade" id="reservaModal" tabindex="-1" aria-labelledby="reservaModalLabel" aria-hidden="true">
+  <div class="modal fade" id="reservaModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="reservaModalLabel">Reserva de Sala</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <h5 class="modal-title">Reserva de Sala</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <form id="reservaForm">
+            <input type="hidden" id="salaId">
             <div class="mb-3">
-              <label for="fecha" class="form-label">Fecha de la Reserva</label>
-              <input type="date" class="form-control" id="fecha" required>
+              <label for="Hora_Inicio" class="form-label">Hora de Inicio</label>
+              <input type="time" class="form-control" id="Hora_Inicio" required>
             </div>
             <div class="mb-3">
-              <label for="hora" class="form-label">Hora de la Reserva</label>
-              <input type="time" class="form-control" id="hora" required>
-            </div>
-            <div class="mb-3">
-              <label for="equipamientoExtra" class="form-label">Equipamiento Extra</label>
-              <select id="equipamientoExtra" class="form-control" multiple>
-                <option value="Micrófono">Micrófono</option>
-                <option value="Laptop">Laptop</option>
-                <option value="Pantalla adicional">Pantalla adicional</option>
-                <option value="Proyector">Proyector</option>
-                <option value="Cables adicionales">Cables adicionales</option>
-                <option value="Muebles extra">Muebles extra</option>
-              </select>
-              <small class="form-text text-muted">Puedes seleccionar varios equipos manteniendo presionada la tecla Ctrl (Cmd en Mac) mientras seleccionas.</small>
+              <label for="Hora_Fin" class="form-label">Hora de Fin</label>
+              <input type="time" class="form-control" id="Hora_Fin" required>
             </div>
           </form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-          <button type="button" class="btn btn-primary" onclick="guardarReserva()">Confirmar Reserva</button>
+          <button type="button" class="btn btn-primary" onclick="guardarReserva()">Reservar</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Footer -->
-  <footer class="footer text-center bg-dark text-white py-3">
-    <p>&copy; 2025 Universidad BVI | <a href="#" class="text-white">Política de privacidad</a></p>
-  </footer>
+    <!-- Cargar el footer desde footer.html -->
+  <div id="footer"></div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-  
   <script>
-    let salaSeleccionada = '';
+    document.addEventListener("DOMContentLoaded", () => {
+      fetch("footer.html")
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById("footer").innerHTML = data;
+        })
+        .catch(error => console.error("Error cargando el footer:", error));
+    });
+  </script>
 
-    function reservarSala(nombre) {
-      salaSeleccionada = nombre;
-      let cantidadElemento = document.getElementById(nombre);
-      let cantidad = parseInt(cantidadElemento.textContent);
-      
-      if (cantidad > 0) {
-        // Abrir el modal para recoger los datos de fecha, hora y equipamiento extra
-        var modal = new bootstrap.Modal(document.getElementById('reservaModal'));
-        modal.show();
-      } else {
-        alert('No hay más disponibilidad para la sala: ' + nombre);
-      }
+  <script>
+    // Cargar la cabecera desde header.html
+    document.addEventListener("DOMContentLoaded", () => {
+      fetch("header.html")
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById("header").innerHTML = data;
+        })
+        .catch(error => console.error("Error cargando la cabecera:", error));
+
+      // Cargar la lista de salas
+      fetch("../Backend/salas.php")
+    .then(response => response.json())
+    .then(data => {
+    console.log("Respuesta de salas.php:", data); // <-- Verificar en la consola
+    if (data.success) {
+      const tbody = document.getElementById("salasBody");
+      data.salas.forEach(sala => {
+        console.log("Sala obtenida:", sala); // <-- Verificar cada sala
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${sala.Nombre_Sala}</td>
+                <td><button class="btn btn-primary" onclick="abrirModal(${sala.Sala_Id}, '${sala.Nombre_Sala}')">Reservar</button></td>`;
+        tbody.appendChild(tr);
+      });
+    }
+  })
+  .catch(error => console.error("Error cargando salas:", error));
+
+    });
+
+    function abrirModal(id, nombre) {
+      console.log("ID recibido en abrirModal:", id); // <-- Verificar en consola
+      document.getElementById("salaId").value = id; // Asegurar que se asigna correctamente
+      var modal = new bootstrap.Modal(document.getElementById("reservaModal"));
+      modal.show();
     }
 
     function guardarReserva() {
-      // Obtener los datos del formulario
-      let fecha = document.getElementById('fecha').value;
-      let hora = document.getElementById('hora').value;
-      let equipamientoExtra = Array.from(document.getElementById('equipamientoExtra').selectedOptions).map(option => option.value).join(', ');
+      const id = parseInt(document.getElementById("salaId").value, 10); // Convertir a número
+      const Hora_Inicio = document.getElementById("Hora_Inicio").value;
+      const Hora_Fin = document.getElementById("Hora_Fin").value;
 
-      if (!fecha || !hora) {
-        alert('Por favor, complete todos los campos obligatorios.');
+      if (!Hora_Inicio || !Hora_Fin) {
+        alert("Por favor, complete todos los campos.");
         return;
       }
 
-      // Procesar la reserva (esto puede ser un envío a un servidor, por ejemplo)
-      let cantidadElemento = document.getElementById(salaSeleccionada);
-      let cantidad = parseInt(cantidadElemento.textContent);
-      
-      if (cantidad > 0) {
-        cantidad--;
-        cantidadElemento.textContent = cantidad;
-        
-        // Actualizar equipamiento
-        let equipamientoElemento = document.getElementById('equipamiento-' + salaSeleccionada);
-        if (equipamientoExtra) {
-          equipamientoElemento.textContent += ', ' + equipamientoExtra;
+      fetch("../Backend/guardar_reserva.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sala_id: id, Hora_Inicio, Hora_Fin })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert("Reserva confirmada");
+          var modal = bootstrap.Modal.getInstance(document.getElementById("reservaModal"));
+          modal.hide();
+        } else {
+          alert("Error al reservar: " + data.error);
         }
-        
-        alert(`Reserva confirmada para la sala: ${salaSeleccionada}\nFecha: ${fecha}\nHora: ${hora}\nEquipamiento extra: ${equipamientoExtra || 'Ninguno'}`);
-        
-        // Cerrar el modal
-        var modal = bootstrap.Modal.getInstance(document.getElementById('reservaModal'));
-        modal.hide();
-      }
+      });
     }
   </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
