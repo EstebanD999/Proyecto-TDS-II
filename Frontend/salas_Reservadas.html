@@ -122,8 +122,8 @@
           <form id="reservaForm">
             <input type="hidden" id="salaId">
             <div class="mb-3">
-              <label for="fechaReserva" class="form-label">Fecha de Reserva</label>
-              <input type="text" class="form-control" id="fechaReserva" required>
+              <label for="Fecha_Reserva" class="form-label">Fecha de Reserva</label>
+              <input type="text" class="form-control" id="Fecha_Reserva" required>
             </div>
             <div class="mb-3">
               <label for="Hora_Inicio" class="form-label">Hora de Inicio</label>
@@ -151,7 +151,7 @@
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       // Inicializar Flatpickr
-      flatpickr("#fechaReserva", {
+      flatpickr("#Fecha_Reserva", {
         minDate: "today", // Solo permite fechas iguales o posteriores al día actual
         dateFormat: "Y-m-d", // Formato de fecha
         locale: "es", // Idioma español
@@ -178,7 +178,7 @@
 
       function cargarReservas() {
         fetch("../Backend/reservas.php")
-          .then(response => response.json())
+          .then(response => response.json())  
           .then(data => {
             let reservas = data.reservas;
             tabla.innerHTML = "";
@@ -206,22 +206,22 @@
           .catch(error => console.error("Error al cargar las reservas:", error));
       }
 
-      window.editarReserva = function(id, horaInicio, horaFin, salaId, fechaReserva) {
+      window.editarReserva = function(id, horaInicio, horaFin, salaId, Fecha_Reserva) {
         document.getElementById("salaId").value = id;
-        document.getElementById("fechaReserva").value = fechaReserva;
+        document.getElementById("Fecha_Reserva").value = Fecha_Reserva;
         document.getElementById("Hora_Inicio").value = horaInicio;
         document.getElementById("Hora_Fin").value = horaFin;
         document.getElementById("mensajeReserva").style.display = "none";
 
         // Cargar los horarios disponibles
-        cargarHorariosDisponibles(salaId, fechaReserva);
+        cargarHorariosDisponibles(salaId, Fecha_Reserva);
 
         let modal = new bootstrap.Modal(document.getElementById('reservaModal'));
         modal.show();
       };
 
-      function cargarHorariosDisponibles(salaId, fechaReserva) {
-        fetch(`../Backend/horarios_ocupados.php?sala_id=${salaId}&fecha=${fechaReserva}`)
+      function cargarHorariosDisponibles(salaId, Fecha_Reserva) {
+        fetch(`../Backend/horarios_ocupados.php?sala_id=${salaId}&fecha=${Fecha_Reserva}`)
           .then(response => response.json())
           .then(data => {
             if (data.success) {
@@ -277,7 +277,7 @@
 
       window.guardarReserva = function () {
         let id = document.getElementById("salaId").value;
-        let fechaReserva = document.getElementById("fechaReserva").value;
+        let Fecha_Reserva = document.getElementById("Fecha_Reserva").value;
         let horaInicio = document.getElementById("Hora_Inicio").value;
         let horaFin = document.getElementById("Hora_Fin").value;
 
@@ -285,12 +285,12 @@
         const fechaActual = ahora.toISOString().split("T")[0];
         const horaActual = ahora.getHours().toString().padStart(2, '0') + ":" + ahora.getMinutes().toString().padStart(2, '0');
 
-        if (fechaReserva < fechaActual) {
+        if (Fecha_Reserva < fechaActual) {
           mostrarMensaje("No puedes reservar una sala en una fecha anterior al día actual.", "danger");
           return;
         }
 
-        if (fechaReserva === fechaActual && horaInicio < horaActual) {
+        if (Fecha_Reserva === fechaActual && horaInicio < horaActual) {
           mostrarMensaje("No puedes reservar una sala antes de la hora actual.", "danger");
           return;
         }
@@ -301,7 +301,7 @@
         }
 
         // Verificar si la hora seleccionada está ocupada
-        fetch(`../Backend/horarios_ocupados.php?sala_id=${document.getElementById("salaId").value}&fecha=${fechaReserva}`)
+        fetch(`../Backend/horarios_ocupados.php?sala_id=${document.getElementById("salaId").value}&fecha=${Fecha_Reserva}`)
           .then(response => response.json())
           .then(data => {
             if (data.success) {
@@ -324,7 +324,7 @@
               // Si no está ocupada, proceder con la reserva
               let formData = new FormData();
               formData.append("Horario_Id", id);
-              formData.append("Fecha_Reserva", fechaReserva);
+              formData.append("Fecha_Reserva", Fecha_Reserva);
               formData.append("Hora_Inicio", horaInicio);
               formData.append("Hora_Fin", horaFin);
 
