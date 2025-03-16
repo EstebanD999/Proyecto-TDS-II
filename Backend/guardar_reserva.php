@@ -12,7 +12,7 @@ if (!isset($_SESSION['usuario_id'])) {
 $data = json_decode(file_get_contents("php://input"), true);
 
 // Verificar que los datos requeridos están presentes
-if (!isset($data['sala_id'], $data['Hora_Inicio'], $data['Hora_Fin'])) {
+if (!isset($data['sala_id'], $data['Hora_Inicio'], $data['Hora_Fin'], $data['Fecha_Reserva'])) {
     echo json_encode(["success" => false, "error" => "Datos incompletos"]);
     exit;
 }
@@ -20,7 +20,15 @@ if (!isset($data['sala_id'], $data['Hora_Inicio'], $data['Hora_Fin'])) {
 $sala_id = $data['sala_id'];
 $Hora_Inicio = $data['Hora_Inicio'];
 $Hora_Fin = $data['Hora_Fin'];
+$fechaReserva = $data['Fecha_Reserva'];
 $usuario_id = $_SESSION['usuario_id']; // Obtener usuario desde la sesión
+
+// Validar que la fecha no sea anterior al día actual
+$fechaActual = date("Y-m-d");
+if ($fechaReserva < $fechaActual) {
+    echo json_encode(["success" => false, "error" => "No puedes reservar una sala en una fecha anterior al día actual"]);
+    exit;
+}
 
 // Dispositivos (booleanos), verificamos si están definidos y tienen un valor verdadero
 $videoBeam = isset($data['video_beam']) && $data['video_beam'] ? 1 : 0;
@@ -41,19 +49,20 @@ try {
         exit;
     }
 
-    // Verificar si ya existe una reserva con la misma hora de inicio o la misma hora de fin
+    // Verificar si ya existe una reserva con la misma fecha, hora de inicio o fin
     $stmt = $pdo->prepare("
         SELECT COUNT(*) as count 
         FROM reservas 
         JOIN horarios ON reservas.Horario_Id = horarios.Horario_Id 
         WHERE reservas.Sala_Id = ? 
+        AND reservas.Fecha_Reserva = ?
         AND (horarios.Hora_Inicio = ? OR horarios.Hora_Fin = ?)
     ");
-    $stmt->execute([$sala_id, $Hora_Inicio, $Hora_Fin]);
+    $stmt->execute([$sala_id, $fechaReserva, $Hora_Inicio, $Hora_Fin]);
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($result['count'] > 0) {
-        echo json_encode(["success" => false, "error" => "Ya existe una reserva en la misma hora de inicio o fin"]);
+        echo json_encode(["success" => false, "error" => "Ya existe una reserva en la misma fecha y hora de inicio o fin"]);
         exit;
     }
 
@@ -63,9 +72,11 @@ try {
     $horario_id = $pdo->lastInsertId();  // Obtener el ID del horario recién insertado
 
     // Insertar reserva
-    $stmt = $pdo->prepare("INSERT INTO reservas (Sala_Id, Horario_Id, Usuario_Id, video_beam, microfono, portatil, cables_adicionales) 
-    VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->execute([$sala_id, $horario_id, $usuario_id, $videoBeam, $microfono, $portatil, $cables]);
+    $stmt = $pdo->prepare("
+        INSERT INTO reservas (Sala_Id, Horario_Id, Usuario_Id, video_beam, microfono, portatil, cables_adicionales, Fecha_Reserva) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ");
+    $stmt->execute([$sala_id, $horario_id, $usuario_id, $videoBeam, $microfono, $portatil, $cables, $fechaReserva]);
 
     echo json_encode(["success" => true, "message" => "Reserva realizada correctamente"]);
 } catch (Exception $e) {

@@ -13,6 +13,7 @@ $sql = "SELECT
             r.Horario_Id, 
             h.Hora_Inicio, 
             h.Hora_Fin, 
+            r.Fecha_Reserva,  // Agregar la fecha de la reserva
             r.video_beam, 
             r.microfono, 
             r.portatil, 
@@ -21,7 +22,7 @@ $sql = "SELECT
         JOIN usuarios u ON r.Usuario_Id = u.Usuario_Id
         JOIN salas s ON r.Sala_Id = s.Sala_Id
         JOIN horarios h ON r.Horario_Id = h.Horario_Id
-        ORDER BY h.Hora_Inicio";
+        ORDER BY r.Fecha_Reserva, h.Hora_Inicio";  // Ordenar por fecha y hora
 
 $stmt = $pdo->query($sql);
 $reservas = $stmt->fetchAll(PDO::FETCH_ASSOC); // Devuelve un array asociativo

@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Salas Reservadas - Universidad</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
   <style>
@@ -121,6 +122,10 @@
           <form id="reservaForm">
             <input type="hidden" id="salaId">
             <div class="mb-3">
+              <label for="fechaReserva" class="form-label">Fecha de Reserva</label>
+              <input type="text" class="form-control" id="fechaReserva" required>
+            </div>
+            <div class="mb-3">
               <label for="Hora_Inicio" class="form-label">Hora de Inicio</label>
               <input type="time" class="form-control" id="Hora_Inicio" required>
             </div>
@@ -142,8 +147,16 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function () {
+      // Inicializar Flatpickr
+      flatpickr("#fechaReserva", {
+        minDate: "today", // Solo permite fechas iguales o posteriores al día actual
+        dateFormat: "Y-m-d", // Formato de fecha
+        locale: "es", // Idioma español
+      });
+
       fetch("header.html")
         .then(response => response.text())
         .then(data => {
@@ -177,13 +190,13 @@
                 let fila = `<tr>
                               <td>${reserva.Sala_Nombre}</td>
                               <td>${reserva.Usuario_Nombre}</td>
-                              <td>${new Date().toLocaleDateString()}</td>
+                              <td>${reserva.Fecha_Reserva}</td>
                               <td>${reserva.Hora_Inicio}</td>
                               <td>${reserva.Hora_Fin}</td>
                               <td>${reserva.Dispositivos || "N/A"}</td>
                               <td>
                                 <button class="btn btn-danger btn-action" onclick="eliminarReserva(${reserva.Horario_Id})">Eliminar</button>
-                                <button class="btn btn-warning btn-action" onclick="editarReserva(${reserva.Horario_Id}, '${reserva.Hora_Inicio}', '${reserva.Hora_Fin}', ${reserva.Sala_Id})">Editar</button>
+                                <button class="btn btn-warning btn-action" onclick="editarReserva(${reserva.Horario_Id}, '${reserva.Hora_Inicio}', '${reserva.Hora_Fin}', ${reserva.Sala_Id}, '${reserva.Fecha_Reserva}')">Editar</button>
                               </td>
                             </tr>`;
                 tabla.innerHTML += fila;
@@ -193,21 +206,22 @@
           .catch(error => console.error("Error al cargar las reservas:", error));
       }
 
-      window.editarReserva = function(id, horaInicio, horaFin, salaId) {
+      window.editarReserva = function(id, horaInicio, horaFin, salaId, fechaReserva) {
         document.getElementById("salaId").value = id;
+        document.getElementById("fechaReserva").value = fechaReserva;
         document.getElementById("Hora_Inicio").value = horaInicio;
         document.getElementById("Hora_Fin").value = horaFin;
         document.getElementById("mensajeReserva").style.display = "none";
 
         // Cargar los horarios disponibles
-        cargarHorariosDisponibles(salaId);
+        cargarHorariosDisponibles(salaId, fechaReserva);
 
         let modal = new bootstrap.Modal(document.getElementById('reservaModal'));
         modal.show();
       };
 
-      function cargarHorariosDisponibles(salaId) {
-        fetch(`../Backend/horarios_ocupados.php?sala_id=${salaId}`)
+      function cargarHorariosDisponibles(salaId, fechaReserva) {
+        fetch(`../Backend/horarios_ocupados.php?sala_id=${salaId}&fecha=${fechaReserva}`)
           .then(response => response.json())
           .then(data => {
             if (data.success) {
@@ -263,13 +277,20 @@
 
       window.guardarReserva = function () {
         let id = document.getElementById("salaId").value;
+        let fechaReserva = document.getElementById("fechaReserva").value;
         let horaInicio = document.getElementById("Hora_Inicio").value;
         let horaFin = document.getElementById("Hora_Fin").value;
 
         const ahora = new Date();
+        const fechaActual = ahora.toISOString().split("T")[0];
         const horaActual = ahora.getHours().toString().padStart(2, '0') + ":" + ahora.getMinutes().toString().padStart(2, '0');
 
-        if (horaInicio < horaActual) {
+        if (fechaReserva < fechaActual) {
+          mostrarMensaje("No puedes reservar una sala en una fecha anterior al día actual.", "danger");
+          return;
+        }
+
+        if (fechaReserva === fechaActual && horaInicio < horaActual) {
           mostrarMensaje("No puedes reservar una sala antes de la hora actual.", "danger");
           return;
         }
@@ -280,7 +301,7 @@
         }
 
         // Verificar si la hora seleccionada está ocupada
-        fetch(`../Backend/horarios_ocupados.php?sala_id=${document.getElementById("salaId").value}`)
+        fetch(`../Backend/horarios_ocupados.php?sala_id=${document.getElementById("salaId").value}&fecha=${fechaReserva}`)
           .then(response => response.json())
           .then(data => {
             if (data.success) {
@@ -303,6 +324,7 @@
               // Si no está ocupada, proceder con la reserva
               let formData = new FormData();
               formData.append("Horario_Id", id);
+              formData.append("Fecha_Reserva", fechaReserva);
               formData.append("Hora_Inicio", horaInicio);
               formData.append("Hora_Fin", horaFin);
 

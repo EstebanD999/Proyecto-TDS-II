@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reservar Sala</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Flatpickr CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <style>
     body {
       display: flex;
@@ -113,6 +115,7 @@
   </style>
 </head>
 <body>
+  
   <!-- Aquí se cargará la cabecera desde header.html -->
   <div id="header"></div>
 
@@ -141,6 +144,10 @@
         <div class="modal-body">
           <form id="reservaForm">
             <input type="hidden" id="salaId">
+            <div class="mb-3">
+              <label for="Fecha_Reserva" class="form-label">Fecha de Reserva</label>
+              <input type="text" class="form-control" id="Fecha_Reserva" required>
+            </div>
             <div class="mb-3">
               <label for="Hora_Inicio" class="form-label">Hora de Inicio</label>
               <input type="time" class="form-control" id="Hora_Inicio" required>
@@ -197,6 +204,13 @@
   <script>
   document.addEventListener("DOMContentLoaded", () => {
     // Cargar header primero
+
+    flatpickr("#Fecha_Reserva", {
+        minDate: "today",
+        dateFormat: "Y-m-d",
+        locale: "es",
+      }); 
+
     fetch("header.html")
       .then(response => response.text())
       .then(data => {
@@ -267,6 +281,7 @@
 
     var modal = new bootstrap.Modal(document.getElementById("reservaModal"));
     modal.show();
+    
   }
 
   function cargarHorariosDisponibles(salaId) {
@@ -335,92 +350,97 @@
         });
 }
 
-  function guardarReserva() {
-    const id = parseInt(document.getElementById("salaId").value, 10);
-    const Hora_Inicio = document.getElementById("Hora_Inicio").value;
-    const Hora_Fin = document.getElementById("Hora_Fin").value;
+function guardarReserva() {
+  const id = parseInt(document.getElementById("salaId").value, 10);
+  const Fecha_Reserva = document.getElementById("Fecha_Reserva").value;
+  const Hora_Inicio = document.getElementById("Hora_Inicio").value;
+  const Hora_Fin = document.getElementById("Hora_Fin").value;
 
-    // Obtener la hora actual
-    const ahora = new Date();
-    const horaActual = ahora.getHours().toString().padStart(2, '0') + ":" + ahora.getMinutes().toString().padStart(2, '0');
+  // Obtener la fecha y hora actual
+  const ahora = new Date();
+  const fechaActual = ahora.toISOString().split("T")[0]; // Formato YYYY-MM-DD
+  const horaActual = ahora.getHours().toString().padStart(2, '0') + ":" + ahora.getMinutes().toString().padStart(2, '0');
 
-    // Validar que la hora de inicio no sea anterior a la hora actual
-    if (Hora_Inicio < horaActual) {
-        mostrarMensajeError("No puedes reservar una sala antes de la hora actual.");
-        return;
-    }
+  // Validar que la fecha de reserva no sea anterior al día actual
+  
+  // Si la fecha de reserva es hoy, validar que la hora de inicio no sea anterior a la hora actual
+  if (Fecha_Reserva === fechaActual && Hora_Inicio < horaActual) {
+    mostrarMensajeError("No puedes reservar una sala antes de la hora actual.");
+    return;
+  }
 
-    // Validar que la hora de fin no sea anterior a la hora de inicio
-    if (Hora_Fin <= Hora_Inicio) {
-        mostrarMensajeError("La hora de fin debe ser posterior a la hora de inicio.");
-        return;
-    }
+  // Validar que la hora de fin no sea anterior a la hora de inicio
+  if (Hora_Fin <= Hora_Inicio) {
+    mostrarMensajeError("La hora de fin debe ser posterior a la hora de inicio.");
+    return;
+  }
 
-    // Verificar si la hora de inicio ya está ocupada
-    fetch(`../Backend/horarios_ocupados.php?sala_id=${id}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const horariosOcupados = data.horarios_ocupados;
-
-                // Verificar si la hora de inicio ya está ocupada
-                const horaInicioOcupada = horariosOcupados.some(horario => {
-                    return Hora_Inicio === horario.hora_inicio;
-                });
-
-                if (horaInicioOcupada) {
-                    mostrarMensajeError("La hora de inicio ya está ocupada. Por favor, elige otra.");
-                    return;
-                }
-
-                // Si la hora de inicio no está ocupada, proceder con la reserva
-                realizarReserva(id, Hora_Inicio, Hora_Fin);
-            } else {
-                mostrarMensajeError("Error al verificar los horarios disponibles.");
-            }
-        })
-        .catch(error => {
-            console.error("Error al verificar los horarios:", error);
-            mostrarMensajeError("Hubo un error al verificar los horarios. Intenta de nuevo.");
-        });
-}
-
-function realizarReserva(id, Hora_Inicio, Hora_Fin) {
-    // Dispositivos
-    const videoBeam = document.getElementById("videoBeam").checked ? 1 : 0;
-    const microfono = document.getElementById("microfono").checked ? 1 : 0;
-    const portatil = document.getElementById("portatil").checked ? 1 : 0;
-    const cables = document.getElementById("cables").checked ? 1 : 0;
-
-    fetch("../Backend/guardar_reserva.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            sala_id: id,
-            Hora_Inicio,
-            Hora_Fin,
-            video_beam: videoBeam,
-            microfono,
-            portatil,
-            cables_adicionales: cables
-        })
-    })
+  // Verificar si la hora de inicio ya está ocupada
+  fetch(`../Backend/horarios_ocupados.php?sala_id=${id}&fecha=${Fecha_Reserva}`)
     .then(response => response.json())
     .then(data => {
-        console.log("Respuesta de guardar_reserva.php:", data);
-        if (data.success) {
-            mostrarMensajeExito("¡Reserva confirmada con éxito!");
-            var modal = bootstrap.Modal.getInstance(document.getElementById("reservaModal"));
-            modal.hide();
-            cargarSalas();
-        } else {
-            mostrarMensajeError(data.message || "Error al reservar. Este horario no se encuentra disponible.");
+      if (data.success) {
+        const horariosOcupados = data.horarios_ocupados;
+
+        // Verificar si la hora de inicio ya está ocupada
+        const horaInicioOcupada = horariosOcupados.some(horario => {
+          return Hora_Inicio === horario.hora_inicio;
+        });
+
+        if (horaInicioOcupada) {
+          mostrarMensajeError("La hora de inicio ya está ocupada. Por favor, elige otra.");
+          return;
         }
+
+        // Si la hora de inicio no está ocupada, proceder con la reserva
+        realizarReserva(id, Fecha_Reserva, Hora_Inicio, Hora_Fin);
+      } else {
+        mostrarMensajeError("Error al verificar los horarios disponibles.");
+      }
     })
     .catch(error => {
-        console.error("Error al guardar la reserva:", error);
-        mostrarMensajeError("Hubo un error al hacer la reserva. Intenta de nuevo.");
+      console.error("Error al verificar los horarios:", error);
+      mostrarMensajeError("Hubo un error al verificar los horarios. Intenta de nuevo.");
     });
+}
+
+function realizarReserva(id, Fecha_Reserva, Hora_Inicio, Hora_Fin) {
+  // Dispositivos
+  const videoBeam = document.getElementById("videoBeam").checked ? 1 : 0;
+  const microfono = document.getElementById("microfono").checked ? 1 : 0;
+  const portatil = document.getElementById("portatil").checked ? 1 : 0;
+  const cables = document.getElementById("cables").checked ? 1 : 0;
+
+  fetch("../Backend/guardar_reserva.php", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      sala_id: id,
+      Fecha_Reserva: Fecha_Reserva, // Agregar la fecha de reserva
+      Hora_Inicio,
+      Hora_Fin,
+      video_beam: videoBeam,
+      microfono,
+      portatil,
+      cables_adicionales: cables
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log("Respuesta de guardar_reserva.php:", data);
+    if (data.success) {
+      mostrarMensajeExito("¡Reserva confirmada con éxito!");
+      var modal = bootstrap.Modal.getInstance(document.getElementById("reservaModal"));
+      modal.hide();
+      cargarSalas();
+    } else {
+      mostrarMensajeError(data.message || "Error al reservar. Este horario no se encuentra disponible.");
+    }
+  })
+  .catch(error => {
+    console.error("Error al guardar la reserva:", error);
+    mostrarMensajeError("Hubo un error al hacer la reserva. Intenta de nuevo.");
+  });
 }
 
   // Función para mostrar el mensaje de éxito
@@ -456,7 +476,8 @@ function realizarReserva(id, Hora_Inicio, Hora_Fin) {
   }
   </script>
 
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 </body>
 </html>
