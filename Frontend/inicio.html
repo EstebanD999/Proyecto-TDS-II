@@ -99,16 +99,23 @@
         .then(response => response.text())
         .then(data => {
           document.getElementById("header").innerHTML = data;
-          return fetch("../Backend/session.php"); // 🔹 Verificar sesión después de cargar el header
+          return fetch("../Backend/session.php");
         })
         .then(response => response.json())
         .then(data => {
           if (data.loggedIn && data.isAdmin) {
-            const adminButton = document.createElement("li");
-            adminButton.className = "nav-item";
-            adminButton.innerHTML = '<a class="nav-link" href="salas_Reservadas.html">Lista Reservas</a>';
-            document.querySelector("#header .navbar-nav").appendChild(adminButton);
-          }
+            // Crear el botón para "Lista Reservas"
+            const reservasButton = document.createElement("li");
+            reservasButton.className = "nav-item";
+            reservasButton.innerHTML = '<a class="nav-link" href="Salas_Reservadas.html">Lista Reservas</a>';
+            document.querySelector("#header .navbar-nav").appendChild(reservasButton);
+
+            // Crear el botón para "Administrar Usuarios"
+            const usuariosButton = document.createElement("li");
+            usuariosButton.className = "nav-item";
+            usuariosButton.innerHTML = '<a class="nav-link" href="tabla_usuarios.html">Administrar Usuarios</a>';
+            document.querySelector("#header .navbar-nav").appendChild(usuariosButton);
+        }
         })
         .catch(error => console.error("Error cargando la cabecera o verificando sesión:", error));
   

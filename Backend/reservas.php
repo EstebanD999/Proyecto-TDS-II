@@ -5,24 +5,24 @@ if (!isset($pdo)) {
     die(json_encode(["error" => "Error en la conexión a la base de datos"]));
 }
 
-$sql = "SELECT 
-            r.Usuario_Id, 
-            u.Nombre AS Usuario_Nombre, 
-            r.Sala_Id, 
-            s.Nombre_Sala AS Sala_Nombre, 
-            r.Horario_Id, 
-            h.Hora_Inicio, 
-            h.Hora_Fin, 
-            r.Fecha_Reserva,  // Agregar la fecha de la reserva
-            r.video_beam, 
-            r.microfono, 
-            r.portatil, 
-            r.cables_adicionales 
-        FROM reservas r
-        JOIN usuarios u ON r.Usuario_Id = u.Usuario_Id
-        JOIN salas s ON r.Sala_Id = s.Sala_Id
-        JOIN horarios h ON r.Horario_Id = h.Horario_Id
-        ORDER BY r.Fecha_Reserva, h.Hora_Inicio";  // Ordenar por fecha y hora
+    $sql = "SELECT 
+        r.Usuario_Id, 
+        u.Nombre AS Usuario_Nombre, 
+        r.Sala_Id, 
+        s.Nombre_Sala AS Sala_Nombre, 
+        r.Horario_Id, 
+        h.Hora_Inicio, 
+        h.Hora_Fin, 
+        r.Fecha_Reserva,  
+        r.video_beam, 
+        r.microfono, 
+        r.portatil, 
+        r.cables_adicionales
+    FROM reservas r
+    JOIN usuarios u ON r.Usuario_Id = u.Usuario_Id
+    JOIN salas s ON r.Sala_Id = s.Sala_Id
+    JOIN horarios h ON r.Horario_Id = h.Horario_Id
+    ORDER BY r.Fecha_Reserva, h.Hora_Inicio;";
 
 $stmt = $pdo->query($sql);
 $reservas = $stmt->fetchAll(PDO::FETCH_ASSOC); // Devuelve un array asociativo

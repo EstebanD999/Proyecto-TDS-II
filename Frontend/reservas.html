@@ -220,11 +220,17 @@
       .then(response => response.json())
       .then(data => {
         if (data.loggedIn && data.isAdmin) {
-          const adminButton = document.createElement("li");
-          adminButton.className = "nav-item";
-          adminButton.innerHTML = '<a class="nav-link" href="reservas.html">Reservar</a>';
-          adminButton.innerHTML = '<a class="nav-link" href="Salas_Reservadas.html">Lista Reservas</a>';
-          document.querySelector("#header .navbar-nav").appendChild(adminButton);
+            // Crear el botón para "Lista Reservas"
+            const reservasButton = document.createElement("li");
+            reservasButton.className = "nav-item";
+            reservasButton.innerHTML = '<a class="nav-link" href="Salas_Reservadas.html">Lista Reservas</a>';
+            document.querySelector("#header .navbar-nav").appendChild(reservasButton);
+
+            // Crear el botón para "Administrar Usuarios"
+            const usuariosButton = document.createElement("li");
+            usuariosButton.className = "nav-item";
+            usuariosButton.innerHTML = '<a class="nav-link" href="tabla_usuarios.html">Administrar Usuarios</a>';
+            document.querySelector("#header .navbar-nav").appendChild(usuariosButton);
         }
       })
       .then(() => cargarSalas()) // Llamar a cargarSalas() después de cargar el header

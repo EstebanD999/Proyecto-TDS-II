@@ -26,10 +26,25 @@ try {
     $stmt->execute([$sala_id]);
     $horarios_ocupados = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    // Obtener la hora actual
+    $hora_actual = date('H:i');
+
+    // Definir el margen de tiempo (en minutos) antes de la hora de inicio en el que no se permiten reservas
+    $margen_minutos = 55; // Por ejemplo, 30 minutos antes de la hora de inicio
+
     // Formatear las horas para asegurar que estén en formato HH:MM
     foreach ($horarios_ocupados as &$horario) {
         $horario['hora_inicio'] = date('H:i', strtotime($horario['hora_inicio']));
         $horario['hora_fin'] = date('H:i', strtotime($horario['hora_fin']));
+
+        // Calcular la hora límite para realizar la reserva
+        $hora_limite = date('H:i', strtotime("-$margen_minutos minutes", strtotime($horario['hora_inicio'])));
+
+        // Verificar si la hora actual está dentro del margen de tiempo
+        if ($hora_actual >= $hora_limite && $hora_actual < $horario['hora_inicio']) {
+            echo json_encode(["success" => false, "error" => "No se pueden realizar reservas dentro de los $margen_minutos minutos previos a la hora de inicio."]);
+            exit;
+        }
     }
 
     echo json_encode(["success" => true, "horarios_ocupados" => $horarios_ocupados]);
